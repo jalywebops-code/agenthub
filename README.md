@@ -18,7 +18,8 @@
 </p>
 
 <p align="center">
-  Works with <b>Claude Code</b> (several accounts) · <b>Codex</b> · <b>Hermes</b> · <b>OpenClaw</b>
+  Works with <b>Claude Code</b> · <b>Codex</b> · <b>Hermes</b> · <b>OpenClaw</b><br>
+  <sub>Several accounts of an agent side by side (Claude Code today), and built so more agents plug in: each one is a single small module.</sub>
 </p>
 
 <p align="center">
@@ -78,7 +79,7 @@ So I built AgentHub: the same idea, on the phone and computer you already have. 
 ### Make it yours
 - **Light and dark**, or match the device. Two styles: a clean **classic** look and an embossed **tactile** one with
   pressable keys and status lamps.
-- **Several Claude accounts** side by side, each marked with its own coloured tag.
+- **Several accounts of the same agent** side by side (Claude Code today), each marked with its own coloured tag.
 - **Phone first**: add it to your Home Screen and it opens full-screen like an app; pull down to refresh.
 
 <details>
@@ -224,6 +225,9 @@ flowchart LR
 - **The board** reads every lane every 30 seconds (and right after anything you do), sorts each chat into Needs you,
   Active and the rest, and the page checks for changes every 5 seconds — an unchanged board costs a few bytes.
 - **No database, no cloud.** A handful of small JSON files in `.data/` hold your setup, PIN hash and history.
+- **More agents plug in.** Each agent is one module in `lib/lanes/` with the same small set of functions (read its
+  chats, send a reply, answer a menu, start a chat). Supporting another agent — or several accounts of one — means
+  writing one, not changing the board.
 
 ## Built to be trusted with your terminals
 
