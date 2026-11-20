@@ -5,7 +5,7 @@
 <h1 align="center">AgentHub</h1>
 
 <p align="center">
-  <b>One board for every AI coding agent on your computer.</b><br>
+  <b>One board for every AI agent on your computer.</b><br>
   See what each one is doing, what is waiting on you, and answer from any browser — your phone included.
 </p>
 
@@ -19,7 +19,7 @@
 
 <p align="center">
   Works with <b>Claude Code</b> · <b>Codex</b> · <b>Hermes</b> · <b>OpenClaw</b><br>
-  <sub>Several accounts of an agent side by side (Claude Code today), and built so more agents plug in: each one is a single small module.</sub>
+  <sub>Several accounts of from one provider can run side by side, and built so more agents plug in: each one is a single small module.</sub>
 </p>
 
 <p align="center">
@@ -31,7 +31,7 @@
 ## Why
 
 AI coding agents are fast, until they stop and wait for you. An approval here, a question there, a report that needs a
-"go ahead". With two or three agents across a few projects, you spend your day checking terminal windows to find out
+"go ahead". With two or three agents across a few projects, you spend your day checking windows to find out
 who is stuck.
 
 **AgentHub puts every chat on one board.** The ones that need you rise to the top with the exact question — and the
@@ -79,7 +79,7 @@ So I built AgentHub: the same idea, on the phone and computer you already have. 
 ### Make it yours
 - **Light and dark**, or match the device. Two styles: a clean **classic** look and an embossed **tactile** one with
   pressable keys and status lamps.
-- **Several accounts of the same agent** side by side (Claude Code today), each marked with its own coloured tag.
+- **Several accounts of the same agent** side by side (Claude Code in this example), each marked with its own coloured tag.
 - **Phone first**: add it to your Home Screen and it opens full-screen like an app; pull down to refresh.
 
 <details>
