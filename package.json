@@ -1,0 +1,29 @@
+{
+  "name": "agenthub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A control board for the AI coding agents on your own computer (Claude Code, Codex, Hermes, OpenClaw): see what is waiting on you and answer from any browser. Local only, no dependencies.",
+  "license": "MIT",
+  "author": "Jaly Web Studio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jalywebops-code/agenthub.git"
+  },
+  "homepage": "https://github.com/jalywebops-code/agenthub#readme",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node scripts/check-lanes.js",
+    "test": "node --test test/*.test.js",
+    "set-pin": "node scripts/set-pin.js",
+    "install-service": "node scripts/service.js install",
+    "uninstall-service": "node scripts/service.js uninstall",
+    "demo": "AGENTHUB_DEMO=1 AGENTHUB_PORT=4410 node server.js",
+    "setup": "node scripts/setup.js",
+    "privacy-check": "node scripts/privacy-check.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

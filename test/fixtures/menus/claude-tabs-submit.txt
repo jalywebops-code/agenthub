@@ -1,0 +1,50 @@
+
+ ▐▛███▛█   Claude Code v2.1.326
+▝▜██████▀  Opus 5.5 with high effort · Claude Max
+ ▝▝   ▝▝   ~/projects/example
+
+
+❯ AgentHub test (safe to delete). Do not read files. Use AskUserQuestion ONCE with TWO single-choice questions in the same call: (1) which fruit: Apple, Banana; (2) which size: Small, Large. Each     
+  option gets a short description.                                                                                                                                                                      
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+←  ☒ Fruit  ☒ Size  ✔ Submit  →                                                                                                                                                                         
+
+Review your answers
+
+ ● Which fruit do you want?
+   → Banana
+ ● Which size do you want?     
+   → Large 
+                                  
+Ready to submit your answers?
+
+❯ 1. Submit answers 
+  2. Cancel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                                                                                                      
+
+
+
+                                                      
+                                                                       

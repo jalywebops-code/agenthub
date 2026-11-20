@@ -1,0 +1,595 @@
+/* ==========================================================================================================
+   TACTILE — an opt-in, look-only theme layer ("hardware panel": embossed tiles, pressable keys, status lamps)
+   ==========================================================================================================
+   Loaded after styles.css. Every rule sits under :root[data-style="tactile"], so with the attribute absent (or
+   "classic") this file does nothing. theme.js sets the attribute before paint (localStorage agenthub_style);
+   Settings → Board → Style switches it. Nothing here changes layout structure or behaviour.
+
+   Depth comes from shading, texture and shadow. Colour is kept for meaning: status lamps, and the two brand
+   colours (green, purple) on the few places that earn them (Submit, primary keys, links, the chosen agent).
+
+   PORTING TO ANOTHER DASHBOARD
+   1. Copy sections 1 (tokens) and 2 (keys); they have no dependency on this app's markup beyond <button>.
+   2. Map your own classes onto the recipes in "COMPONENTS" below.
+   3. Set data-style="tactile" on <html>; for light mode also data-theme="light".
+   Works under a strict Content-Security-Policy: no inline styles, no external files; the grain is a data: SVG.
+
+   TOKENS (all start with --tc-; redefined for light mode in section 1)
+     Surfaces   --tc-bg            the chassis: the page behind everything
+                --tc-panel-hi/-lo  a raised panel's face, top to bottom (cards, dialogs, settings groups)
+                --tc-key-hi/-lo    a key's face, top to bottom (buttons)
+                --tc-well          a recessed surface (inputs, tracks, quoted text)
+                --tc-glass         dark display glass, the same in light and dark (status pills, terminal screens)
+                --tc-glass-text    text on display glass
+                --tc-grain         the noise texture (a tiled data: SVG) laid over chassis and panels
+     Bevels     --tc-bevel-hi      the lit top edge of anything raised (and the lit lower lip of a well)
+                --tc-bevel-lo      the shaded bottom edge of anything raised
+                --tc-edge          the hairline around panels and keys
+                --tc-well-edge     the hairline around wells
+     Depth      --tc-raise         a panel's drop shadow (layered: contact line + soft drop)
+                --tc-raise-high    the same for things that float (dialogs, menus, toasts)
+                --tc-key-depth     how far a key stands proud (its visible side wall), 2px
+                --tc-key-side      the colour of that side wall
+                --tc-key-drop      the soft shadow under a key
+                --tc-inset         a well's inner shadow
+                --tc-press         how far a key travels when pressed, = --tc-key-depth
+                --tc-press-shade   the inner shadow of a pressed key
+                --tc-recess        a shallow tint for grouped rows inside a panel (settings rows)
+     Lamps      --tc-lamp-amber / -red / -cyan / -green / -blue / -purple / -grey   lit indicator colours
+                --tc-lamp-off      an unlit lamp
+                --tc-slot          the dark slot a light bar sits in
+     Brand      --tc-green, --tc-purple          the two accents
+                --tc-green-text, --tc-purple-text  the same, tuned to pass AA as text on panels and keys
+     Type       --tc-engrave       text-shadow for engraved labels (section headings)
+
+   PER-ELEMENT KNOBS (set on a key to make a variant; never set by styles.css, so they cannot be overridden by it)
+     --k-hi / --k-lo   face gradient         --k-text   legend colour        --k-edge   hairline
+     --k-lamp          the light strip along the key's bottom edge (transparent = no lamp)
+     --k-ring          an outer ring (the health ring on the settings dial, the purple ring on New chat)
+     --k-glow          an outer glow (an agent that is working)
+   On cards: --lamp (light bar + status), --wash (soft light spilling from the bar), --stripe (top accent stripe).
+
+   COMPONENTS (recipe → the classes it is applied to here)
+     Key            raised face, side wall, travels down on :active and stays down on [aria-pressed="true"]
+                    → button, a.button, .opt, .actions button, .agent-pill, .new-chat, .refresh-btn, .more-btn
+     Lit key        a key with --k-lamp and a coloured legend → .approve, .continue-btn, .answer, .primary-action
+     Filled key     a brand-coloured face → .send-btn (green), .primary (purple)
+     Dial           a round key with a radial face → .gear (its clock ring and spark come from styles.css), .refresh-btn
+     Segmented switch  a recessed track with a raised thumb on the chosen option → .age-chips, .grid-chips, #statusChips
+     Panel          embossed tile → .card, dialog, .set-group, .more-menu, .toast, .project-head
+     Light bar      a lamp in a slot on a panel's left edge, in the status colour → .card (.review .blocked .approval
+                    .working .done .update)
+     Indicator      dark glass capsule with a lit dot → .pill;  bare LED → .light
+     Well           recessed field → input, textarea, select, .bubble, .confirm, .ask-callout, .links .link
+     Screen         dark glass for terminal text → .request-detail, .screen, .working-line
+
+   RULES KEPT
+     Motion: only transform is animated (key travel, 80ms). No animated shadows, gradients or filters, no
+     backdrop-filter, no entrance animations (the board redraws every few seconds). Reduced motion: no travel
+     animation (styles.css already removes every transition).
+     Contrast: text pairs are WCAG 2.1 AA in both modes (figures beside the tokens). Pressed and chosen states
+     change depth (travel + inner shadow, or a raised thumb), never colour alone. Focus ring: 3px, --focus.
+     Phones (up to 600px): keys people tap are at least 44px tall.
+   ========================================================================================================== */
+
+/* ---------- 1. Tokens ---------- */
+:root[data-style="tactile"] {
+  --tc-bg: #0b0c0e;
+  --tc-panel-hi: #212329;
+  --tc-panel-lo: #17191c;
+  --tc-key-hi: #373a41;
+  --tc-key-lo: #25272c;
+  --tc-well: #08090a;
+  --tc-glass: #07080a;
+  --tc-glass-text: #dfe3e8;            /* 15.6:1 on --tc-glass */
+  --tc-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  --tc-bevel-hi: rgba(255, 255, 255, .13);
+  --tc-bevel-lo: rgba(0, 0, 0, .35);
+  --tc-edge: #040405;
+  --tc-well-edge: #000;
+
+  --tc-raise: 0 1px 0 rgba(0, 0, 0, .7), 0 8px 16px -8px rgba(0, 0, 0, .8);
+  --tc-raise-high: 0 2px 0 rgba(0, 0, 0, .6), 0 24px 60px -12px rgba(0, 0, 0, .85);
+  --tc-key-depth: 2px;
+  --tc-key-side: #060607;
+  --tc-key-drop: rgba(0, 0, 0, .7);
+  --tc-inset: inset 0 2px 4px rgba(0, 0, 0, .7), inset 0 0 0 1px rgba(0, 0, 0, .3);
+  --tc-press: var(--tc-key-depth);
+  --tc-press-shade: rgba(0, 0, 0, .6);
+  --tc-recess: rgba(0, 0, 0, .22);
+
+  --tc-lamp-amber: #f5b942;
+  --tc-lamp-red: #ff6f64;
+  --tc-lamp-cyan: #45c4d0;
+  --tc-lamp-green: #5fc95f;
+  --tc-lamp-blue: #7fb2ff;
+  --tc-lamp-purple: #c08fdc;
+  --tc-lamp-grey: #aab1bd;
+  --tc-lamp-off: #2e3137;
+  --tc-slot: #050506;
+
+  --tc-green: #5fc95f;
+  --tc-purple: #a460c4;
+  --tc-green-text: #6fd46f;            /* 8.0:1 on --tc-key-lo, 6:1 on --tc-key-hi */
+  --tc-purple-text: #c79be0;           /* 6.5:1 on --tc-key-lo, 5:1 on --tc-key-hi */
+  --tc-engrave: 0 -1px 0 rgba(0, 0, 0, .9), 0 1px 0 rgba(255, 255, 255, .05);
+
+  /* The app's own tokens, moved onto this palette so everything not restyled below still belongs.
+     --text on --tc-panel-hi 13:1; --muted on --tc-panel-hi 6.5:1, on --tc-bg 8.2:1. */
+  --bg: var(--tc-bg);
+  --surface: #17191c;
+  --surface-2: #202226;
+  --line: #2c2f35;
+  --text: #e9ebee;
+  --muted: #a4aab4;
+  --focus: #b983d6;
+  --brand-green: var(--tc-green);
+  --brand-purple: var(--tc-purple);
+  --brand-purple-strong: #8443a5;
+  --topbar-bg: #101114;
+  --shadow: rgba(0, 0, 0, .6);
+  --code-bg: var(--tc-glass);
+  --good: var(--tc-green);
+  --good-text: #a9e6a9;
+  --accent-text: #ead9f5;
+  --accent-icon: var(--tc-purple-text);
+}
+
+/* Light: neutral grey "plastic and aluminium". --text on --tc-panel-lo 14.9:1; --muted on --tc-bg 5.6:1, on
+   --tc-well 5.2:1. Display glass (pills, screens) stays dark, as on real hardware. */
+:root[data-style="tactile"][data-theme="light"] {
+  --tc-bg: #e3e5e9;
+  --tc-panel-hi: #fbfbfc;
+  --tc-panel-lo: #eff0f3;
+  --tc-key-hi: #ffffff;
+  --tc-key-lo: #e7e9ed;
+  --tc-well: #dadde2;
+  --tc-glass: #101216;
+  --tc-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  --tc-bevel-hi: rgba(255, 255, 255, .95);
+  --tc-bevel-lo: rgba(40, 46, 58, .1);
+  --tc-edge: #b3b8c1;
+  --tc-well-edge: #b9bec7;
+
+  --tc-raise: 0 1px 0 rgba(40, 46, 58, .18), 0 8px 16px -8px rgba(40, 46, 58, .35);
+  --tc-raise-high: 0 2px 0 rgba(40, 46, 58, .16), 0 24px 60px -12px rgba(30, 35, 45, .45);
+  --tc-key-side: #a4aab4;
+  --tc-key-drop: rgba(40, 46, 58, .28);
+  --tc-inset: inset 0 2px 3px rgba(40, 46, 58, .2), inset 0 0 0 1px rgba(40, 46, 58, .04);
+  --tc-press-shade: rgba(40, 46, 58, .3);
+  --tc-recess: rgba(40, 46, 58, .05);
+
+  --tc-lamp-off: #4a4e56;
+  --tc-slot: #23262b;
+
+  --tc-green-text: #1f6b27;            /* 5.5:1 on --tc-key-lo */
+  --tc-purple-text: #7a3496;           /* 6.0:1 on --tc-key-lo */
+  --tc-engrave: 0 1px 0 rgba(255, 255, 255, .9);
+
+  --bg: var(--tc-bg);
+  --surface: #f6f7f8;
+  --surface-2: #eceef1;
+  --line: #c6cad1;
+  --text: #17191d;
+  --muted: #505762;
+  --focus: #7b3399;
+  --brand-green: #2e8b3a;
+  --brand-purple: #8a3fa8;
+  --brand-purple-strong: #74308f;
+  --topbar-bg: #eceef1;
+  --shadow: rgba(30, 35, 45, .25);
+  --code-bg: var(--tc-glass);
+  --good: #2e8b3a;
+  --good-text: #1c5e24;
+  --accent-text: #5a2470;
+  /* Status words sit on the grey chassis here (darker than the classic light page), so each is a step darker: all 5:1 or better on --tc-bg. */
+  --waiting: #8a5000;
+  --danger: #b02a21;
+  --working: #086670;
+  --done: #2456c0;
+  --idle: #585f6c;
+  --accent-icon: var(--tc-purple-text);
+}
+
+/* ---------- 2. Keys: every button is a physical key ---------- */
+/* The knobs' defaults, at the lowest weight (:where), so any variant below can turn one. */
+:root[data-style="tactile"] :where(button, a.button) {
+  --k-hi: var(--tc-key-hi);
+  --k-lo: var(--tc-key-lo);
+  --k-text: var(--text);
+  --k-edge: var(--tc-edge);
+  --k-lamp: transparent;
+  --k-ring: 0 0 0 0 transparent;
+  --k-glow: 0 0 0 0 transparent;
+  --k-face: linear-gradient(180deg, var(--k-hi), var(--k-lo));
+}
+:root[data-style="tactile"] button:not(.wordmark-btn, .x, .img-remove, .project-head),
+:root[data-style="tactile"] a.button {
+  background:
+    linear-gradient(var(--k-lamp), var(--k-lamp)) center calc(100% - 1px) / calc(100% - 18px) 2px no-repeat,
+    radial-gradient(60% 9px at 50% 100%, color-mix(in srgb, var(--k-lamp) 26%, transparent), transparent),
+    var(--k-face);
+  border: 1px solid var(--k-edge);
+  color: var(--k-text);
+  box-shadow:
+    inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo),
+    0 var(--tc-key-depth) 0 var(--tc-key-side), 0 calc(var(--tc-key-depth) + 1px) 3px var(--tc-key-drop),
+    var(--k-ring), var(--k-glow);
+  transition: transform 80ms cubic-bezier(.3, .7, .4, 1);
+}
+/* Down: the key travels its own depth, the side wall disappears and the face falls into shadow. */
+:root[data-style="tactile"] button:not(.wordmark-btn, .x, .img-remove, .project-head):active:not(:disabled),
+:root[data-style="tactile"] button:not(.wordmark-btn, .x, .img-remove, .project-head)[aria-pressed="true"],
+:root[data-style="tactile"] a.button:active,
+:root[data-style="tactile"] .opt.picked {
+  transform: translateY(var(--tc-press));
+  --k-face: linear-gradient(180deg, var(--k-lo), var(--k-hi));
+  box-shadow: inset 0 2px 4px var(--tc-press-shade), inset 0 0 0 1px var(--tc-bevel-lo), 0 1px 0 var(--tc-bevel-hi), var(--k-ring), var(--k-glow);
+}
+:root[data-style="tactile"] button:active:not(:disabled),
+:root[data-style="tactile"] a.button:active,
+:root[data-style="tactile"] .opt:active { filter: none; }
+@media (hover: hover) {
+  :root[data-style="tactile"] button:not(.wordmark-btn, .x, .img-remove, .project-head):hover:not(:disabled, :active, [aria-pressed="true"]),
+  :root[data-style="tactile"] a.button:hover { filter: brightness(1.07); }
+}
+/* A key that latches ([aria-pressed]) stays down, and its lamp strip lights. */
+:root[data-style="tactile"] button[aria-pressed="true"] { --k-lamp: var(--tc-lamp-purple); --k-text: var(--text-strong); }
+:root[data-style="tactile"] button.ghost { --k-hi: transparent; --k-lo: transparent; --k-text: var(--muted); box-shadow: inset 0 1px 0 var(--tc-bevel-hi), 0 1px 0 var(--tc-bevel-lo); }
+:root[data-style="tactile"] button.ghost:active:not(:disabled) { box-shadow: inset 0 2px 4px var(--tc-press-shade); transform: translateY(1px); }
+:root[data-style="tactile"] button.danger { --k-text: var(--danger-text); --k-edge: color-mix(in srgb, var(--danger) 45%, var(--tc-edge)); }
+
+/* Filled keys: the two places a whole face takes a brand colour. Submit: #0a1f0a on the green face 8:1 or better.
+   Primary: #fff on the purple face 4.8:1 at its lightest. */
+:root[data-style="tactile"] .send-btn { --k-hi: #74d674; --k-lo: #4db64d; --k-text: #0a1f0a; --k-edge: #1f5a22; --tc-key-side: #2a7a2d; }
+:root[data-style="tactile"] button.primary,
+:root[data-style="tactile"] a.button.primary { --k-hi: #9a55ba; --k-lo: #7d3f9c; --k-text: #fff; --k-edge: #4d2163; --tc-key-side: #55256d; }
+/* Outlined in purple: Image, Mic, Suggest. */
+:root[data-style="tactile"] .accent-btn { --k-edge: var(--tc-purple); --k-text: var(--accent-text); }
+:root[data-style="tactile"] .mic[aria-pressed="true"],
+:root[data-style="tactile"] .mic.accent-btn[aria-pressed="true"] { --k-hi: #b3362c; --k-lo: #c9443a; --k-text: #fff; --k-edge: #6b1a14; --k-lamp: #fff; }
+
+/* Card keys. Lit keys: a lamp and a coloured legend say "this one moves things on". */
+:root[data-style="tactile"] .actions button { font-weight: 650; letter-spacing: .01em; }
+:root[data-style="tactile"] .actions .approve,
+:root[data-style="tactile"] .actions .continue-btn,
+:root[data-style="tactile"] .continue-all { --k-lamp: var(--tc-lamp-green); --k-text: var(--tc-green-text); --k-edge: color-mix(in srgb, var(--tc-green) 38%, var(--tc-edge)); }
+:root[data-style="tactile"] .actions .answer { --k-lamp: var(--tc-lamp-purple); --k-text: var(--tc-purple-text); --k-edge: color-mix(in srgb, var(--tc-purple) 55%, var(--tc-edge)); }
+:root[data-style="tactile"] .actions .primary-action { --k-hi: color-mix(in srgb, var(--tc-key-hi), #fff 9%); --k-lo: color-mix(in srgb, var(--tc-key-lo), #fff 6%); font-weight: 750; }
+:root[data-style="tactile"] .actions .primary-action:not(.answer, .approve, .continue-btn) { --k-lamp: var(--tc-lamp-green); }
+/* Continue's 5-second Undo (styles.css drains a fill across the key): the same, on this key's colours. */
+:root[data-style="tactile"] .actions .continue-btn.counting {
+  background: linear-gradient(to right, color-mix(in srgb, var(--tc-green) 34%, var(--tc-key-lo)) var(--undo-fill), var(--tc-key-lo) var(--undo-fill));
+  --k-text: var(--text-strong);
+}
+:root[data-style="tactile"] .actions .continue-btn.sent:disabled { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-style="tactile"] .actions .continue-btn.counting { background: color-mix(in srgb, var(--tc-green) 34%, var(--tc-key-lo)); }
+}
+:root[data-style="tactile"] .more-btn { flex: 0 0 auto; min-width: 40px; }
+
+/* Multiple-choice options: wide keys with a key-cap legend. */
+:root[data-style="tactile"] .opt { --k-edge: var(--tc-edge); }
+:root[data-style="tactile"] .opt:not(:disabled):hover { --k-edge: color-mix(in srgb, var(--tc-purple) 60%, var(--tc-edge)); }
+:root[data-style="tactile"] .opt.picked { --k-edge: var(--tc-purple); --k-lamp: var(--tc-lamp-purple); }
+:root[data-style="tactile"] .opt-n { color: var(--tc-purple-text); }
+
+/* ---------- 3. Chassis, top bar, section labels ---------- */
+:root[data-style="tactile"] body {
+  background: radial-gradient(1200px 420px at 50% -120px, var(--tc-bevel-hi), transparent 70%) no-repeat, var(--tc-grain), var(--tc-bg);
+}
+:root[data-style="tactile"] .topbar {
+  background: linear-gradient(180deg, var(--tc-panel-hi), var(--tc-panel-lo));
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+/* Agents and filters: part of the chassis, with no line between them and the bar or the board. */
+:root[data-style="tactile"] .top { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-style="tactile"] .group h2,
+:root[data-style="tactile"] .projects-title,
+:root[data-style="tactile"] .step-count { text-shadow: var(--tc-engrave); }
+/* "Needs you": an amber lamp in front of the label. */
+:root[data-style="tactile"] .group.needs-list h2.needs-title { align-items: center; }
+:root[data-style="tactile"] .group.needs-list h2.needs-title::before {
+  content: ''; flex: none; width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--tc-lamp-amber) 55%);
+  box-shadow: 0 0 0 1px var(--tc-slot), 0 0 8px var(--tc-lamp-amber);
+}
+:root[data-style="tactile"] .demo-tag { background: var(--tc-glass); color: var(--tc-lamp-amber); border-color: #000; box-shadow: inset 0 1px 2px #000, 0 1px 0 var(--tc-bevel-hi); }
+
+/* Round keys in the bar: dials. The settings dial keeps its health ring, clock spark and pulse from styles.css. */
+:root[data-style="tactile"] .refresh-btn,
+:root[data-style="tactile"] .gear { --k-face: radial-gradient(circle at 50% 28%, var(--k-hi), var(--k-lo) 72%); }
+:root[data-style="tactile"] .gear[data-health="ok"] { --k-ring: 0 0 0 2px color-mix(in srgb, var(--good), transparent 30%); }
+:root[data-style="tactile"] .gear[data-health="stale"] { --k-ring: 0 0 0 2px var(--waiting); }
+:root[data-style="tactile"] .gear[data-health="offline"] { --k-ring: 0 0 0 2px var(--danger); }
+:root[data-style="tactile"] .gear[data-health="restarting"] { --k-ring: 0 0 0 2px var(--restarting); }
+:root[data-style="tactile"] .new-chat { --k-ring: 0 0 0 1.5px var(--tc-purple); --k-text: var(--text-strong); }
+
+/* ---------- 4. Agent buttons: chunky keys with a status LED ---------- */
+:root[data-style="tactile"] .agent-pill { --k-lamp: transparent; }
+/* Chosen: held down, with a purple ring and a purple cast on the face (depth first, colour second). */
+:root[data-style="tactile"] .agent-pill[aria-pressed="true"] {
+  --k-lamp: transparent;
+  --k-hi: color-mix(in srgb, var(--tc-purple) 30%, var(--tc-key-hi)); --k-lo: color-mix(in srgb, var(--tc-purple) 22%, var(--tc-key-lo));
+  --k-edge: var(--tc-purple); --k-text: var(--text-strong);
+}
+:root[data-style="tactile"] .agent-pill.off { --k-edge: color-mix(in srgb, var(--danger) 50%, var(--tc-edge)); }
+:root[data-style="tactile"] .agent-pill.glow { --k-glow: 0 0 14px -3px var(--agent); }
+/* Accounts are told apart by their tag badge (styles.css .acct): a small engraved plate here. */
+:root[data-style="tactile"] .acct { box-shadow: inset 0 1px 0 var(--tc-bevel-hi), 0 1px 1px var(--tc-key-drop); }
+:root[data-style="tactile"] .pill-icon,
+:root[data-style="tactile"] .agent-icon { box-shadow: 0 1px 2px var(--tc-key-drop); }
+/* The LED: a lit dome in a dark rim. */
+:root[data-style="tactile"] .light {
+  --lamp: var(--working);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--lamp), #fff 60%), var(--lamp) 62%);
+  box-shadow: 0 0 0 1px var(--tc-slot), 0 0 6px var(--lamp);
+}
+:root[data-style="tactile"] .light.ok { --lamp: var(--good); }
+:root[data-style="tactile"] .light.idle { --lamp: var(--idle); box-shadow: 0 0 0 1px var(--tc-slot); }
+:root[data-style="tactile"] .light.restarting { --lamp: var(--restarting); }
+:root[data-style="tactile"] .light.down,
+:root[data-style="tactile"] .light.off,
+:root[data-style="tactile"] .agent-pill.off .light { --lamp: var(--danger); }
+
+/* ---------- 5. Segmented switches: a recessed track, the chosen option is the raised thumb ---------- */
+:root[data-style="tactile"] .age-chips,
+:root[data-style="tactile"] .grid-chips,
+:root[data-style="tactile"] #statusChips {
+  gap: 2px; padding: 2px; border-radius: 999px; width: fit-content; max-width: 100%;
+  background: var(--tc-well); border: 1px solid var(--tc-well-edge);
+  box-shadow: var(--tc-inset), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] .age-chips button,
+:root[data-style="tactile"] .grid-chips button,
+:root[data-style="tactile"] #statusChips button {
+  min-height: 26px; --k-hi: transparent; --k-lo: transparent; --k-edge: transparent; --k-lamp: transparent; --k-text: var(--muted);
+  box-shadow: none; transform: none;
+}
+:root[data-style="tactile"] #ageChips button[aria-pressed="true"],
+:root[data-style="tactile"] #gridChips button[aria-pressed="true"],
+:root[data-style="tactile"] #statusChips button[aria-pressed="true"],
+:root[data-style="tactile"] #statusChips button[data-status="all"][aria-pressed="true"] {
+  --k-hi: var(--tc-key-hi); --k-lo: var(--tc-key-lo); --k-edge: var(--tc-edge); --k-text: var(--text-strong);
+  --k-face: linear-gradient(180deg, var(--k-hi), var(--k-lo)); --k-lamp: transparent;
+  background: var(--k-face); border-color: var(--k-edge); color: var(--k-text); transform: none;
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), 0 1px 2px var(--tc-key-drop);
+}
+/* A chosen status keeps its colour as a thin lit line under the label. */
+:root[data-style="tactile"] #statusChips button:not([data-status="all"])[aria-pressed="true"] {
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -2px 0 var(--ring), 0 1px 2px var(--tc-key-drop);
+}
+
+/* ---------- 6. Wells: fields you type or pick in ---------- */
+:root[data-style="tactile"] input:not([type="checkbox"], [type="radio"], [type="file"]),
+:root[data-style="tactile"] textarea,
+:root[data-style="tactile"] select {
+  background-color: var(--tc-well); border: 1px solid var(--tc-well-edge); color: var(--text);
+  box-shadow: var(--tc-inset), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] ::placeholder { color: var(--muted); opacity: 1; }
+:root[data-style="tactile"] input[type="checkbox"],
+:root[data-style="tactile"] input[type="radio"] { accent-color: var(--tc-green); }
+/* The header dropdowns are keys (they open a menu), with the chevron kept. */
+:root[data-style="tactile"] .filter-select select {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a909b' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 10px center / 10px 6px,
+    linear-gradient(180deg, var(--tc-key-hi), var(--tc-key-lo));
+  border: 1px solid var(--tc-edge);
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), 0 var(--tc-key-depth) 0 var(--tc-key-side), 0 calc(var(--tc-key-depth) + 1px) 3px var(--tc-key-drop);
+}
+:root[data-style="tactile"] .filter-select select.on { border-color: var(--tc-purple);
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), 0 var(--tc-key-depth) 0 var(--tc-key-side), 0 0 0 1.5px var(--tc-purple); }
+
+/* ---------- 7. Cards: embossed tiles with a light bar ---------- */
+:root[data-style="tactile"] .card:not(.full) {
+  --lamp: var(--tc-lamp-off); --wash: transparent; --stripe: transparent;
+  border: 1px solid var(--tc-edge); padding-left: 15px; /* 1px edge + 15px = the classic 4px bar + 12px: same text width */
+  background:
+    linear-gradient(var(--stripe), var(--stripe)) 14px 0 / calc(100% - 28px) 2px no-repeat,
+    linear-gradient(var(--lamp), var(--lamp)) 5px 12px / 3px calc(100% - 24px) no-repeat,
+    linear-gradient(var(--tc-slot), var(--tc-slot)) 4px 11px / 5px calc(100% - 22px) no-repeat,
+    radial-gradient(150px 70% at 0 50%, var(--wash), transparent) no-repeat,
+    var(--tc-grain),
+    linear-gradient(180deg, var(--tc-panel-hi), var(--tc-panel-lo));
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), var(--tc-raise);
+}
+/* Waiting on you: the bar is lit, its light spills a little onto the tile, and a faint ring lifts the tile. */
+:root[data-style="tactile"] .card.review:not(.full) { --lamp: var(--tc-lamp-amber); --wash: color-mix(in srgb, var(--tc-lamp-amber) 8%, transparent); }
+:root[data-style="tactile"] .card.blocked:not(.full),
+:root[data-style="tactile"] .card.approval:not(.full) { --lamp: var(--tc-lamp-red); --wash: color-mix(in srgb, var(--tc-lamp-red) 9%, transparent); }
+:root[data-style="tactile"] .card.review:not(.full),
+:root[data-style="tactile"] .card.blocked:not(.full),
+:root[data-style="tactile"] .card.approval:not(.full) {
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), 0 0 0 1px color-mix(in srgb, var(--lamp) 26%, transparent), var(--tc-raise);
+}
+:root[data-style="tactile"] .card.working:not(.full) { --lamp: var(--tc-lamp-cyan); }
+:root[data-style="tactile"] .card.done:not(.full) { --lamp: var(--tc-lamp-blue); }
+:root[data-style="tactile"] .card.update:not(.full) { --lamp: var(--tc-lamp-grey); }
+/* Running: the agent-coloured glow and turning ring from styles.css, around the tile's own edge. */
+:root[data-style="tactile"] .card.glow:not(.full) {
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), var(--tc-raise), 0 0 16px -5px var(--agent);
+}
+:root[data-style="tactile"] .card.glow:not(.full)::before { inset: -1px; }
+
+:root[data-style="tactile"] .card-text .turn + .msg,
+:root[data-style="tactile"] .card-text .turn + .msg.ask-context { border-top: 1px solid var(--tc-bevel-lo); box-shadow: inset 0 1px 0 var(--tc-bevel-hi); }
+:root[data-style="tactile"] .x { position: relative; }
+:root[data-style="tactile"] .x::after { content: ''; position: absolute; inset: -4px; }
+
+/* Status: a small glass indicator with a lit dot. Glass is dark in both modes; every lamp colour is 7:1 or better on it. */
+:root[data-style="tactile"] .pill {
+  --lamp: var(--tc-lamp-grey);
+  display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px 1px 6px;
+  background: var(--tc-glass); color: var(--lamp); border: 1px solid #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .8), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] .pill::before {
+  content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--lamp) 55%); box-shadow: 0 0 5px var(--lamp);
+}
+:root[data-style="tactile"] .pill.review { --lamp: var(--tc-lamp-amber); }
+:root[data-style="tactile"] .pill.blocked,
+:root[data-style="tactile"] .pill.approval { --lamp: var(--tc-lamp-red); }
+:root[data-style="tactile"] .pill.working { --lamp: var(--tc-lamp-cyan); }
+:root[data-style="tactile"] .pill.done { --lamp: var(--tc-lamp-blue); }
+:root[data-style="tactile"] .pill.deferred { --lamp: var(--tc-lamp-purple); }
+:root[data-style="tactile"] .pill.idle::before { background: var(--tc-lamp-off); box-shadow: none; }
+
+/* Screens: terminal text behind dark glass, with a faint reflection along the top. */
+:root[data-style="tactile"] .request-detail,
+:root[data-style="tactile"] .screen,
+:root[data-style="tactile"] .working-line {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .055), transparent 42%), var(--tc-glass);
+  color: var(--tc-glass-text); border: 1px solid #000;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, .85), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] .working-line {
+  align-self: flex-start; margin: 0; padding: 5px 10px; border-radius: 8px;
+  font: .78rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; color: var(--tc-lamp-cyan);
+}
+/* The question or command a card is waiting on: a well with the card's lamp colour down its left side. */
+:root[data-style="tactile"] .ask-callout {
+  background: var(--tc-well); border: 1px solid var(--tc-well-edge); border-radius: 10px;
+  box-shadow: var(--tc-inset), inset 3px 0 0 var(--lamp, var(--tc-lamp-amber)), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] .links .link { --k-hi: var(--tc-well); --k-lo: var(--tc-well); --k-edge: var(--tc-well-edge); box-shadow: var(--tc-inset), 0 1px 0 var(--tc-bevel-hi); }
+:root[data-style="tactile"] .link-text,
+:root[data-style="tactile"] .reach-list a,
+:root[data-style="tactile"] .link-full a { color: var(--tc-purple-text); }
+:root[data-style="tactile"] .thumb,
+:root[data-style="tactile"] .shot,
+:root[data-style="tactile"] .img-thumb { border-color: var(--tc-well-edge); box-shadow: 0 1px 0 var(--tc-bevel-hi), 0 1px 3px var(--tc-key-drop); }
+/* The overflow menu: a small floating panel; its rows are flat until pressed. */
+:root[data-style="tactile"] .more-menu {
+  background: var(--tc-grain), linear-gradient(180deg, var(--tc-panel-hi), var(--tc-panel-lo));
+  border: 1px solid var(--tc-edge); border-radius: 12px;
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), var(--tc-raise-high);
+}
+:root[data-style="tactile"] .more-menu button { --k-hi: transparent; --k-lo: transparent; --k-edge: transparent; box-shadow: none; }
+:root[data-style="tactile"] .more-menu button:active:not(:disabled) { box-shadow: inset 0 2px 4px var(--tc-press-shade); transform: translateY(1px); }
+
+/* Project rows: embossed strips. */
+:root[data-style="tactile"] .group h2 .project-head {
+  padding: 0 12px; border-radius: 10px; border: 1px solid var(--tc-edge);
+  background: linear-gradient(180deg, var(--tc-panel-hi), var(--tc-panel-lo));
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), 0 1px 0 var(--tc-key-side), 0 2px 3px var(--tc-key-drop);
+  transition: transform 80ms cubic-bezier(.3, .7, .4, 1);
+}
+:root[data-style="tactile"] .group h2 .project-head:active { transform: translateY(1px); box-shadow: inset 0 2px 4px var(--tc-press-shade); }
+:root[data-style="tactile"] .group.folded { margin-bottom: 8px; }
+
+/* ---------- 8. Dialogs and what is inside them ---------- */
+:root[data-style="tactile"] dialog {
+  background: var(--tc-grain), linear-gradient(180deg, var(--tc-panel-hi), var(--tc-panel-lo));
+  border: 1px solid var(--tc-edge);
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), var(--tc-raise-high);
+}
+:root[data-style="tactile"] .sheet-head {
+  background: linear-gradient(180deg, var(--tc-key-hi), var(--tc-panel-hi));
+  border-bottom: 1px solid var(--tc-edge);
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] .sheet-head h2 { text-shadow: var(--tc-engrave); }
+/* The agent's words sit in a well; yours on a raised slip. */
+:root[data-style="tactile"] .bubble { background: var(--tc-well); border: 1px solid var(--tc-well-edge); box-shadow: var(--tc-inset), 0 1px 0 var(--tc-bevel-hi); }
+:root[data-style="tactile"] .bubble.you {
+  background: linear-gradient(180deg, var(--tc-key-hi), var(--tc-key-lo)); border-color: var(--tc-edge);
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), 0 1px 2px var(--tc-key-drop);
+}
+:root[data-style="tactile"] .bubble.handoff-note { box-shadow: var(--tc-inset), inset 3px 0 0 var(--tc-lamp-blue), 0 1px 0 var(--tc-bevel-hi); }
+:root[data-style="tactile"] .confirm {
+  background: var(--tc-well); border: 1px solid var(--tc-well-edge);
+  box-shadow: var(--tc-inset), inset 3px 0 0 var(--tc-lamp-amber), 0 1px 0 var(--tc-bevel-hi);
+}
+:root[data-style="tactile"] .set-group {
+  background: linear-gradient(180deg, var(--tc-panel-hi), var(--tc-panel-lo)); border: 1px solid var(--tc-edge);
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 -1px 0 var(--tc-bevel-lo), 0 1px 0 var(--tc-key-side), 0 3px 6px -2px var(--tc-key-drop);
+}
+:root[data-style="tactile"] .set-group + .set-group { margin-top: -2px; }
+:root[data-style="tactile"] .set-group-body { border-top: 1px solid var(--tc-bevel-lo); box-shadow: inset 0 1px 0 var(--tc-bevel-hi); }
+:root[data-style="tactile"] .set-agent,
+:root[data-style="tactile"] .project-group,
+:root[data-style="tactile"] .welcome-agent,
+:root[data-style="tactile"] .radio { background: var(--tc-recess); box-shadow: inset 0 1px 2px var(--tc-bevel-lo), 0 1px 0 var(--tc-bevel-hi); }
+:root[data-style="tactile"] .set-agent,
+:root[data-style="tactile"] .project-group,
+:root[data-style="tactile"] .radio { border-color: var(--tc-well-edge); }
+:root[data-style="tactile"] code { background: var(--tc-well); box-shadow: inset 0 1px 1px var(--tc-bevel-lo); }
+:root[data-style="tactile"] .toast,
+:root[data-style="tactile"] .pull-hint {
+  background: linear-gradient(180deg, var(--tc-key-hi), var(--tc-key-lo));
+  box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 0 0 1px var(--tc-edge), var(--tc-raise-high);
+}
+:root[data-style="tactile"] .pull-hint.ready { box-shadow: inset 0 1px 0 var(--tc-bevel-hi), inset 0 0 0 1px var(--good), var(--tc-raise-high); }
+
+/* ---------- 9. Phones: every key people tap is at least 44px tall; the spacing around them gives the room back ---------- */
+@media (max-width: 600px) {
+  /* The bar's five controls share the width: the dial is 44px; light/dark and refresh are drawn at 40px and reach 44px
+     with an unseen margin (::after), so the row still fits a 381px phone. */
+  :root[data-style="tactile"] .topbar { padding: calc(6px + env(safe-area-inset-top)) 12px 6px; }
+  :root[data-style="tactile"] .wordmark .wordmark-img { height: 20px; }
+  :root[data-style="tactile"] .top-row .gear { width: 44px; height: 44px; min-height: 44px; }
+  :root[data-style="tactile"] .top-row .refresh-btn { width: 40px; height: 40px; min-height: 40px; position: relative; }
+  :root[data-style="tactile"] .top-row .refresh-btn::after { content: ''; position: absolute; inset: -3px; }
+  :root[data-style="tactile"] .new-chat,
+  :root[data-style="tactile"] .wordmark .wordmark-btn { min-height: 44px; }
+  :root[data-style="tactile"] .agents { margin-top: 6px; }
+  :root[data-style="tactile"] .agent-pill { min-height: 44px; }
+  :root[data-style="tactile"] .age-row { margin-top: 8px; }
+  :root[data-style="tactile"] .filter-select select,
+  :root[data-style="tactile"] .age-row .search input { min-height: 44px; }
+  :root[data-style="tactile"] .actions button,
+  :root[data-style="tactile"] .opt,
+  :root[data-style="tactile"] .suggest-btn.accent-btn,
+  :root[data-style="tactile"] button.more,
+  :root[data-style="tactile"] .group h2 .project-head { min-height: 44px; }
+  :root[data-style="tactile"] .continue-all { position: relative; }
+  :root[data-style="tactile"] .continue-all::after { content: ''; position: absolute; inset: -7px 0; }
+}
+
+/* ---------- 10. Logo: the mark as four green keys around a lit purple lamp, the wordmark as raised lettering ---------- */
+/* index.html carries both logos inside the refresh button: the clay one (.logo-classic) and this one (.logo-tactile, as
+   SVG in public/brand, a dark and a light drawing). The tactile images have the hidden attribute, so without this
+   style they are not shown at all; here the clay ones step aside and the drawing for the theme takes their place, at
+   the sizes styles.css gives .mark-logo and .wordmark-img. */
+:root[data-style="tactile"] .wordmark .logo-classic { display: none; }
+:root[data-style="tactile"]:not([data-theme="light"]) .wordmark .mark-logo.logo-dark,
+:root[data-style="tactile"][data-theme="light"] .wordmark .mark-logo.logo-light { display: block; }
+/* The wordmark is left out on the narrowest phones (styles.css, 380px and under), so it is only brought in above that. */
+@media (min-width: 381px) {
+  :root[data-style="tactile"]:not([data-theme="light"]) .wordmark .wordmark-img.logo-dark,
+  :root[data-style="tactile"][data-theme="light"] .wordmark .wordmark-img.logo-light { display: block; }
+}
+/* The drawing reaches down to the tail of the "g", so its capitals sit above the middle of the mark: nudged down to line up. */
+:root[data-style="tactile"] .wordmark .wordmark-img.logo-tactile { transform: translateY(8%); }
+/* These letters are set wider than the clay ones: on phones a slightly lower wordmark keeps the top row the same width. */
+@media (max-width: 600px) {
+  :root[data-style="tactile"] .wordmark .wordmark-img.logo-tactile { height: 18px; }
+}
+/* The quarter turn on refresh: app.js puts .spin on the first mark in the button (the clay one, not shown here), so
+   the turn is passed on to the mark that is. Reduced motion: no turn. */
+:root[data-style="tactile"] .wordmark .mark-logo.spin ~ .mark-logo.logo-tactile { animation: logo-turn .6s cubic-bezier(.3, 1.4, .5, 1); }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-style="tactile"] .wordmark .mark-logo.spin ~ .mark-logo.logo-tactile { animation: none; }
+}
+
+/* ==========================================================================================================
+   11. Confirm keys: go (green) and danger (red) faces, like the filled keys above.
+   ========================================================================================================== */
+:root[data-style="tactile"] button.primary.go { --k-hi: #3fa86a; --k-lo: #237a4a; --k-text: #fff; --k-edge: #14502f; --tc-key-side: #17603a; }
+:root[data-style="tactile"] button.primary.danger { --k-hi: #c9443a; --k-lo: #a3302a; --k-text: #fff; --k-edge: #6b1a14; --tc-key-side: #7a221c; }
+
+/* ==========================================================================================================
+   12. The logo below desktop, a little larger (its letters are set wider than the clay ones, so a step lower).
+   ========================================================================================================== */
+@media (min-width: 601px) and (max-width: 1099px) {
+  :root[data-style="tactile"] .wordmark .wordmark-img, :root[data-style="tactile"] .wordmark .wordmark-img.logo-tactile { height: 27px; }
+}
+@media (min-width: 441px) and (max-width: 600px) {
+  :root[data-style="tactile"] .wordmark .wordmark-img, :root[data-style="tactile"] .wordmark .wordmark-img.logo-tactile { height: 28px; }
+}
+@media (max-width: 440px) {
+  :root[data-style="tactile"] .wordmark .wordmark-img, :root[data-style="tactile"] .wordmark .wordmark-img.logo-tactile { height: 20px; }
+}

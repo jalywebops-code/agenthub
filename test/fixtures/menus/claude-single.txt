@@ -1,0 +1,50 @@
+
+ ▐▛███▛█   Claude Code v2.1.326
+▝▜██████▀  Opus 5.5 with high effort · Claude Max
+ ▝▝   ▝▝   ~/projects/example
+
+▎ [✻] [✻] [✻] · Share Claude Code and earn $10 in usage credits · /passes
+
+❯ AgentHub test (safe to delete). Do not use any tools except AskUserQuestion. Use your AskUserQuestion tool to ask me one single-choice question (which fruit to use) with three options that each
+  have a short description.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ Fruit
+
+Which fruit should we use for this AgentHub test?
+
+❯ 1. Apple
+     Crisp and sweet, a reliable everyday choice.
+  2. Banana
+     Soft and easy to peel, good for quick energy.
+  3. Mango
+     Juicy and tropical, with a rich, sweet flavor.
+  4. Type something.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+Enter to select · ↑/↓ to navigate · Esc to cancel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

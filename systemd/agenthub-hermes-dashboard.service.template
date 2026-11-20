@@ -1,0 +1,20 @@
+# Hermes dashboard for AgentHub's Hermes lane, on this computer only (127.0.0.1:__PORT__). Installed by
+# `npm run install-service` when Hermes is on. A clean stop is not restarted; only crashes are.
+[Unit]
+Description=Hermes dashboard for AgentHub
+
+[Service]
+Type=simple
+WorkingDirectory=__HOME__/.hermes/hermes-agent
+ExecStart=__HOME__/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main dashboard --host 127.0.0.1 --port __PORT__ --no-open --skip-build
+Environment=HERMES_HOME=__HOME__/.hermes
+Environment=HERMES_WEB_DIST=__HOME__/.hermes/hermes-agent/hermes_cli/web_dist
+Environment=VIRTUAL_ENV=__HOME__/.hermes/hermes-agent/venv
+Environment=PATH=__HOME__/.hermes/hermes-agent/venv/bin:__HOME__/.hermes/node/bin:/usr/local/bin:/usr/bin:/bin:__HOME__/.hermes/bin
+Restart=on-failure
+RestartSec=30
+StandardOutput=append:__ROOT__/logs/hermes-dashboard.log
+StandardError=append:__ROOT__/logs/hermes-dashboard.log
+
+[Install]
+WantedBy=default.target

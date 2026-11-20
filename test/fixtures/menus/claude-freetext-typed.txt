@@ -1,0 +1,50 @@
+
+❯ AgentHub test (safe to delete). Do not read files. Use AskUserQuestion ONCE with TWO single-choice questions in the same call: (1) which fruit: Apple, Banana; (2) which size: Small, Large. Each     
+  option gets a short description.                                                                                                                                                                      
+
+⏺ Answered Claude's questions:
+  ⎿  · Which fruit do you want? → Banana
+     · Which size do you want? → Large                                                                                                                                                                  
+
+⏺ The AgentHub test worked: both questions showed up in a single prompt, and you answered both.
+
+  - Fruit: Banana                       
+  - Size: Large                       
+
+  I didn't read or change any files, and there's nothing to implement.                         
+  ⎿  Stop says: Still on Opus (claude-opus-5-5) - run /model sonnet if the next task does not need it.
+                 
+✻ Sautéed for 8s · done 2:07 PM
+           
+❯ AgentHub test: use AskUserQuestion with ONE single-choice question: which fruit, options Apple and Banana.                                                                                            
+
+⏺ Answered Claude's questions:
+  ⎿  · Which fruit do you want? → Apple
+           
+⏺ The single-question test worked: you picked Apple. I didn't read or change any files.                                                                                                                 
+  ⎿  Stop says: Still on Opus (claude-opus-5-5) - run /model sonnet if the next task does not need it.
+
+✻ Churned for 2s · done 2:07 PM        
+
+❯ AgentHub test: use AskUserQuestion with ONE single-choice question: which fruit, options Apple and Banana.                                                                                            
+
+⏺ Declined to answer Claude's questions:
+  ⎿  · Which fruit do you want? (Apple / Banana)
+                               
+❯ AgentHub test: use AskUserQuestion with ONE single-choice question: which fruit, options Apple and Banana.                                                                                            
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Planning: /Users/you/.claude/plans/agenthub-test-safe-to-abundant-reddy.md
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ Fruit 
+
+Which fruit do you want?
+
+  1. Apple
+     A crisp, sweet-tart fruit.                               
+  2. Banana                                                                    
+     A soft, sweet tropical fruit.                                                                                                                                                                    
+❯ 3. Kiwi                                                                                                                                                                                               
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  4. Chat about this                                                                                                                                                                                    
+                                                      
+Enter to select · ↑/↓ to navigate · ctrl+g to edit in Vim · Esc to cancel

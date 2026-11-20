@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 554 106">
+  <!-- The AgentHub wordmark for the tactile style, on light panels: raised lettering, lit from above.
+       The letters are outlines (traced from Montserrat ExtraBold, SIL Open Font License 1.1), not text, so no font is
+       needed and it looks the same on every machine. Each word is drawn twice: a dark side wall 3.5 units down, then
+       the face with a bevel (lit top rim, shaded bottom rim). tactile-wordmark.svg is the same drawing in the dark-mode colours. -->
+  <defs>
+    <linearGradient id="green" gradientUnits="userSpaceOnUse" x1="0" y1="6" x2="0" y2="97">
+      <stop offset="0" stop-color="#49ad52"/><stop offset="1" stop-color="#2c8537"/>
+    </linearGradient>
+    <linearGradient id="purple" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="77">
+      <stop offset="0" stop-color="#a45bc2"/><stop offset="1" stop-color="#823a9f"/>
+    </linearGradient>
+    <filter id="bevel" filterUnits="userSpaceOnUse" x="0" y="0" width="554" height="106">
+      <feOffset in="SourceAlpha" dy="3" result="down"/>
+      <feComposite in="SourceAlpha" in2="down" operator="out" result="topRim"/>
+      <feFlood flood-color="#fff" flood-opacity=".32"/>
+      <feComposite in2="topRim" operator="in" result="lit"/>
+      <feOffset in="SourceAlpha" dy="-3" result="up"/>
+      <feComposite in="SourceAlpha" in2="up" operator="out" result="bottomRim"/>
+      <feFlood flood-color="#000" flood-opacity=".2"/>
+      <feComposite in2="bottomRim" operator="in" result="shade"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="lit"/><feMergeNode in="shade"/></feMerge>
+    </filter>
+    <filter id="drop" filterUnits="userSpaceOnUse" x="0" y="0" width="554" height="106">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.2"/>
+      <feOffset dy="2.5" result="blur"/>
+      <feFlood flood-color="#282e3a" flood-opacity=".45"/>
+      <feComposite in2="blur" operator="in"/>
+    </filter>
+    <path id="agent" d="M2.6 76 33.5 6H53L84 76H63.4L57.9 62.4H28.3L22.8 76ZM34.1 47.8H52.1L43.1 25.4ZM114.7 96.3Q106.9 96.3 99.9 94.5Q92.8 92.7 87.8 89.2L94.7 75.9Q98.1 78.6 103.2 80.2Q108.2 81.7 113 81.7Q120.7 81.7 124.1 78.3Q127.5 75 127.5 68.6V66.9Q122 73.2 111.4 73.2Q104.2 73.2 98.2 70Q92.1 66.8 88.5 60.9Q84.8 55 84.8 47Q84.8 39 88.5 33.1Q92.1 27.3 98.2 24.1Q104.2 20.9 111.4 20.9Q122.9 20.9 128.4 28.3V21.8H146.5V66.1Q146.5 81.5 138.2 88.9Q129.8 96.3 114.7 96.3ZM115.9 58.1Q121 58.1 124.4 55Q127.7 52 127.7 47Q127.7 42 124.4 39Q121 36 115.9 36Q110.8 36 107.4 39Q104 42 104 47Q104 52 107.4 55Q110.8 58.1 115.9 58.1ZM187.1 76.9Q177.5 76.9 170.3 73.2Q163.2 69.6 159.2 63.2Q155.3 56.9 155.3 48.8Q155.3 40.7 159.2 34.4Q163.1 28.1 169.8 24.5Q176.6 20.9 185.1 20.9Q193.1 20.9 199.7 24.2Q206.3 27.5 210.2 33.8Q214.1 40 214.1 49Q214.1 50 214 51.3Q213.9 52.6 213.8 53.7H174.4Q175.6 57.8 179.1 60.1Q182.5 62.4 187.7 62.4Q191.7 62.4 194.6 61.2Q197.4 60.1 200.2 57.7L210.2 68.1Q202.3 76.9 187.1 76.9ZM174.1 43.7H196.3Q195.5 39.4 192.6 36.9Q189.6 34.4 185.2 34.4Q180.8 34.4 177.9 36.9Q174.9 39.4 174.1 43.7ZM222.9 76V21.8H241V27.7Q244.2 24.3 248.7 22.6Q253.1 20.9 258.2 20.9Q264.5 20.9 269.6 23.4Q274.7 26 277.7 31.3Q280.6 36.6 280.6 45V76H261.6V48.1Q261.6 42.3 259.2 39.6Q256.8 37 252.7 37Q248.1 37 245 40Q241.9 43.1 241.9 49.8V76ZM316.7 76.9Q306.3 76.9 300.5 71.8Q294.7 66.6 294.7 56.2V35.9H286.8V21.8H294.7V9.7H313.7V21.8H326.1V35.9H313.7V56Q313.7 59 315.2 60.6Q316.8 62.2 319.4 62.2Q322.7 62.2 325.2 60.5L329.9 73.8Q327.4 75.4 323.9 76.2Q320.4 76.9 316.7 76.9Z"/>
+    <path id="hub" d="M384.9 76V48.7H357.9V76H338.1V6H357.9V32.3H384.9V6H404.7V76ZM440.6 76.9Q433.9 76.9 428.7 74.2Q423.5 71.6 420.6 66.2Q417.6 60.7 417.6 52.1V21.8H436.6V49Q436.6 55.3 439 58Q441.4 60.7 445.6 60.7Q449.8 60.7 452.8 57.7Q455.8 54.7 455.8 47.9V21.8H474.8V76H456.7V70.2Q453.6 73.6 449.4 75.2Q445.2 76.9 440.6 76.9ZM521.1 76.9Q510.5 76.9 505.1 70.6V76H487V1.8H506V26.5Q511.5 20.9 521.1 20.9Q528.5 20.9 534.5 24.3Q540.5 27.7 544.1 33.9Q547.7 40.2 547.7 48.8Q547.7 57.5 544.1 63.8Q540.5 70 534.5 73.5Q528.5 76.9 521.1 76.9ZM517.1 61.8Q521.9 61.8 525.2 58.4Q528.5 55 528.5 48.8Q528.5 42.7 525.2 39.3Q521.9 36 517.1 36Q512.3 36 509 39.3Q505.7 42.7 505.7 48.8Q505.7 55 509 58.4Q512.3 61.8 517.1 61.8Z"/>
+  </defs>
+  <g filter="url(#drop)"><use href="#agent" y="3.5"/><use href="#hub" y="3.5"/></g>
+  <use href="#agent" y="3.5" fill="#1a5a22"/>
+  <use href="#hub" y="3.5" fill="#55226b"/>
+  <g filter="url(#bevel)">
+    <use href="#agent" fill="url(#green)"/>
+    <use href="#hub" fill="url(#purple)"/>
+  </g>
+</svg>

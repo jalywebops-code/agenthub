@@ -1,0 +1,1077 @@
+:root {
+  --bg: #0f1115;
+  --surface: #181b22;
+  --surface-2: #20242d;
+  --line: #2c313c;
+  --text: #e8eaf0;
+  --muted: #a3aab8;
+  --waiting: #f5b942;
+  --working: #3fb8c4;
+  --idle: #9aa3b2;
+  --done: #6aa6ff;
+  --danger: #ff7b72;
+  --focus: #a865b4;
+  /* Brand: "Agent" green, "Hub" purple (lifted so it reads on the dark board); strong purple for filled buttons. */
+  --brand-green: #64945d;
+  --brand-purple: #a865b4;
+  --brand-purple-strong: #8a3487;
+  /* Colours that used to be written out in place, as tokens so the light theme can change them (end of file). */
+  --text-strong: #fff;
+  --topbar-bg: rgba(15, 17, 21, .96);
+  --shadow: rgba(0, 0, 0, .45);
+  --backdrop: rgba(0, 0, 0, .6);
+  --good-bg: #173a2a; --good-text: #bff0d7; --good-fill: #1f6a47; --good-text-strong: #e6fff2;
+  --warn-bg: #2a2414; --needs-bg: #3a2c0d; --on-warn: #1a1405;
+  --info-bg: #1d2740; --info-line: #3d5487; --info-text: #cfdcff;
+  --danger-line: #7a3430; --danger-text: #ffb4ad; --off-line: #5a2a28; --on-danger: #1a0705;
+  --done-line: #2d4a73;
+  --code-bg: #0b0d11;
+  --count-bg: rgba(0, 0, 0, .25);
+  --pill-text: #111;
+  --accent-text: #ecdcff;
+  --accent-icon: color-mix(in srgb, var(--brand-purple) 55%, #fff);
+  --hermes-glow: #e8eaf0;
+  --radius: 12px;
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* No square flash on tap (Android Chrome); a quick brighten inside the button's own shape instead. */
+button:active:not(:disabled), a.button:active, .opt:active { filter: brightness(1.18); }
+body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: env(safe-area-inset-bottom); }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--brand-purple-strong); color: #fff; padding: 8px 12px; z-index: 10; }
+.skip:focus { left: 8px; }
+.muted { color: var(--muted); }
+code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+
+/* ---------- header ---------- */
+.top {
+  position: relative; z-index: 5;
+  background: var(--topbar-bg); backdrop-filter: blur(8px);
+  padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+}
+.top-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+h1 { font-size: 1.15rem; margin: 0; letter-spacing: .01em; }
+.wordmark { display: flex; align-items: center; gap: 8px; }
+/* The logo: the clay mark and the clay wordmark, as images (public/brand). */
+.wordmark .mark-logo { width: 28px; height: 28px; flex: none; }
+.wordmark .wordmark-img { width: auto; height: 22px; flex: none; }
+/* The logo is the refresh button (an installed app has no browser reload button): plain to look at, a quarter turn of
+   the pinwheel when pressed (app.js). */
+.wordmark .wordmark-btn { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 4px 0 0; margin: 0; border: 0; border-radius: 10px;
+  background: none; color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; box-shadow: none; }
+.wordmark .wordmark-btn:focus-visible { outline: 2px solid var(--brand-purple); outline-offset: 3px; }
+.wordmark .mark-logo.spin { animation: logo-turn .6s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes logo-turn { from { transform: rotate(0); } to { transform: rotate(90deg); } }
+@media (prefers-reduced-motion: reduce) { .wordmark .mark-logo.spin { animation: none; } }
+/* The working glow reaches ~10px past an agent button. This row scrolls sideways, which would also clip the glow top and
+   bottom, so it gets 8px of room inside and gives it back outside (nothing else moves). */
+.agents { display: flex; gap: 8px; margin: 2px -6px -8px; padding: 8px 6px; overflow-x: auto; scrollbar-width: none; }
+.agents::-webkit-scrollbar { display: none; }
+.agent-pill {
+  display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 40px;
+  padding: 4px 12px 4px 8px; border-radius: 999px; font-weight: 600; font-size: .85rem; white-space: nowrap;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation;
+}
+.agent-pill:first-child { padding-left: 12px; }
+.pill-icon { width: 20px; height: 20px; border-radius: 5px; flex: none; object-fit: cover; }
+.light { width: 8px; height: 8px; border-radius: 50%; background: var(--working); flex: none; }
+.agent-pill.off .light, .light.off { background: var(--danger); }
+.agent-pill.off { border-color: var(--off-line); }
+/* Phones: icon + status light only, so every agent fits on one row. The name stays in the pill's label for screen readers. */
+@media (max-width: 600px) {
+  .pill-name { display: none; }
+  .agent-pill:not(:first-child) { padding: 4px 10px 4px 8px; }
+  .pill-icon { width: 24px; height: 24px; }
+}
+/* Narrow phones (up to 420px, e.g. a 384px Galaxy): tighter buttons so every agent fits without scrolling. */
+@media (max-width: 420px) {
+  .agents { gap: 7px; }
+  .agent-pill:not(:first-child) { padding: 4px 6px; gap: 5px; }
+}
+.updated { font-size: .75rem; color: var(--muted); }
+/* Only the thin bar above (.topbar: logo, New chat, settings) stays on screen; this block scrolls with the page. */
+
+.controls { display: flex; gap: 8px; margin-top: 10px; align-items: stretch; }
+/* The search box fills the row next to "Needs you" but never past it (min-width: 0 lets it shrink on
+   narrow phones; iOS gives search inputs a wide built-in minimum), and stops at 360px on wide screens. */
+.search { flex: 1 1 auto; display: flex; min-width: 0; max-width: 360px; }
+/* Age chips and search share one row (saves a row on phones). */
+.age-row { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+.age-row .age-chips { margin-top: 0; flex: none; }
+.age-row .search { min-width: 70px; }
+.age-row .search input { min-height: 28px; padding: 3px 10px; border-radius: 999px; font-size: .78rem; }
+.search input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); -webkit-appearance: none; appearance: none;
+}
+button {
+  min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface-2); cursor: pointer; font-weight: 600;
+}
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.ghost { background: transparent; }
+button.primary { background: var(--brand-purple-strong); color: #fff; border-color: var(--brand-purple-strong); }
+button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: inset 0 -3px 0 var(--brand-purple); }
+/* The chosen agent filter: a soft purple fill, not an outline (outlines on agent buttons are the usage gauge). */
+.agent-pill[aria-pressed="true"] { background: color-mix(in srgb, var(--brand-purple) 34%, var(--surface)); color: var(--text-strong); border-color: color-mix(in srgb, var(--brand-purple) 55%, var(--line)); box-shadow: none; }
+.needs { background: var(--needs-bg); border-color: var(--waiting); color: var(--waiting); white-space: nowrap; }
+.needs[aria-pressed="true"] { background: var(--waiting); color: var(--on-warn); border-color: var(--waiting); }
+.count { display: inline-block; min-width: 1.6em; padding: 0 6px; border-radius: 999px; background: var(--count-bg); text-align: center; }
+
+.chips { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.chips::-webkit-scrollbar { display: none; }
+.chips button { min-height: 36px; padding: 4px 12px; border-radius: 999px; font-weight: 500; font-size: .85rem; white-space: nowrap; flex: none; }
+
+/* ---------- board ---------- */
+main { padding: 12px 14px 40px; outline: none; }
+.empty { color: var(--muted); text-align: center; padding: 40px 10px; }
+.group { margin-bottom: 20px; }
+.group h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 8px; display: flex; gap: 8px; align-items: baseline; }
+.group h2 .gcount { font-weight: 500; letter-spacing: 0; text-transform: none; }
+/* Main view: "Needs you" on top (amber heading), then "Projects", each one folded line. */
+.group.needs-list h2.needs-title { color: var(--waiting); }
+.projects-title { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 0 4px; }
+.blocked-group h2 { color: var(--danger); }
+.review-group h2 { color: var(--waiting); }
+.cards { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1200px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--idle);
+  border-radius: var(--radius); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.card.review { border-left-color: var(--waiting); }
+.card.blocked { border-left-color: var(--danger); }
+.card.approval { border-left-color: var(--danger); }
+.card.working { border-left-color: var(--working); }
+.card.done { border-left-color: var(--done); }
+
+/* One header row: agent mark, chat name + folder, status pill on the right. */
+.card-head { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.agent-icon { width: 22px; height: 22px; border-radius: 6px; flex: none; margin-top: 1px; object-fit: cover; }
+.head-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.title { font-size: .98rem; font-weight: 650; margin: 0; line-height: 1.3; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.where { font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill { flex: none; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; color: var(--pill-text); white-space: nowrap; margin-top: 1px; }
+.pill.review { background: var(--waiting); }
+.pill.blocked { background: var(--danger); color: var(--on-danger); }
+.pill.approval { background: var(--danger); color: var(--on-danger); }
+.pill.working { background: var(--working); }
+.pill.idle { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.pill.done { background: transparent; color: var(--done); border: 1px solid var(--done-line); }
+
+.msg { font-size: .86rem; margin: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; cursor: pointer; }
+.msg.you { -webkit-line-clamp: 1; color: var(--muted); font-size: .8rem; cursor: default; }
+.msg.open { -webkit-line-clamp: unset; display: block; }
+.msg b { color: var(--muted); font-weight: 600; }
+.note { font-size: .78rem; color: var(--muted); margin: 0; }
+.handoff { font-size: .78rem; margin: 0; color: var(--info-text); }
+.handoff.to { color: var(--working); }
+
+.links { display: flex; flex-direction: column; gap: 4px; }
+.link { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 8px; font-weight: 500; font-size: .8rem; text-align: left; background: var(--bg); }
+.link-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--done); }
+.link-action { color: var(--muted); font-size: .75rem; }
+.link-icon { width: 48px; text-align: center; color: var(--muted); }
+.thumb { width: 48px; height: 34px; object-fit: cover; object-position: top; border-radius: 4px; border: 1px solid var(--line); flex: none; }
+
+/* Approve and Changes are the longest labels and Ask the shortest, so the columns are weighted to match. */
+/* Two to five buttons, depending on the card (cardActions): widths follow the labels, so five still fit at 320px. */
+.actions { display: flex; gap: 6px; }
+.actions button { flex: 1 1 auto; min-width: 0; }
+.actions button { padding: 6px 2px; font-size: .78rem; min-height: 44px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 360px) { .actions { gap: 4px; } .actions button { font-size: .66rem; padding: 6px 0; letter-spacing: -.01em; } }
+.actions .approve:not(:disabled) { background: var(--good-bg); border-color: var(--good); color: var(--good-text); }
+.ask { background: var(--info-bg); border-color: var(--info-line); color: var(--info-text); }
+
+button.more { margin-top: 8px; min-height: 40px; font-weight: 500; color: var(--muted); }
+
+/* ---------- dialogs ---------- */
+dialog {
+  width: min(680px, 100vw); max-width: 100vw; max-height: 92vh; margin: auto auto 0; padding: 0; border: 1px solid var(--line); overflow: hidden;
+  border-radius: 16px 16px 0 0; background: var(--surface); color: var(--text);
+}
+@media (min-width: 760px) { dialog { margin: auto; border-radius: 16px; } }
+dialog::backdrop { background: var(--backdrop); }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); }
+.sheet-head h2 { margin: 0; font-size: 1rem; }
+.sheet-body { padding: 14px; overflow-y: auto; max-height: calc(92vh - 70px); display: flex; flex-direction: column; gap: 12px; }
+.sheet-body textarea { width: 100%; min-height: 130px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); resize: vertical; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > button { flex: 1; }
+.bubble { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9rem; }
+.bubble.you { background: var(--warn-bg); }
+.bubble.quote { max-height: 28vh; overflow-y: auto; }
+.bubble .who { display: block; font-size: .72rem; color: var(--muted); margin-bottom: 4px; }
+.confirm { border: 1px solid var(--waiting); border-radius: 10px; padding: 10px 12px; background: var(--warn-bg); }
+.error { color: var(--danger); margin: 0; min-height: 1.2em; }
+.mic[aria-pressed="true"] { background: var(--danger); border-color: var(--danger); color: #fff; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: .85rem; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+
+.login { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.login h2 { margin: 0; }
+.login input { min-height: 52px; font-size: 1.6rem; letter-spacing: .4em; text-align: center; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translate(-50%, 8px);
+  background: var(--surface-2); color: var(--text); padding: 10px 16px; border-radius: 12px; font-weight: 500; font-size: .88rem;
+  box-shadow: inset 0 0 0 1px var(--line), 0 10px 30px var(--shadow);
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .25s cubic-bezier(.2, .8, .2, 1); max-width: 90vw; z-index: 20;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.msg.menu { color: var(--waiting); -webkit-line-clamp: 4; }
+.screen { background: #000; color: #d7dae0; padding: 10px; border-radius: 10px; font-size: .72rem; line-height: 1.3; overflow-x: auto; white-space: pre; margin: 0; }
+
+/* ---------- sheets: menus, fields, previews, slash commands ---------- */
+.menu-list { display: flex; flex-direction: column; gap: 8px; }
+.menu-list button { text-align: left; }
+button.danger { border-color: var(--danger-line); color: var(--danger-text); }
+.lane-line { display: flex; align-items: center; gap: 8px; margin: 0; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--muted); }
+.field[hidden] { display: none; }
+select { min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+.modes { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.radio { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font-size: .88rem; cursor: pointer; }
+.radio input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
+.radio.disabled { opacity: .5; cursor: not-allowed; }
+.answer-area:empty { display: none; }
+a.button { display: inline-flex; align-items: center; justify-content: center; flex: 1; min-height: 44px; padding: 8px 14px; border-radius: 10px; font-weight: 600; text-decoration: none; }
+a.button.primary { background: var(--brand-purple-strong); color: #fff; }
+.shot-link { display: block; }
+.shot { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.link-full { overflow-wrap: anywhere; margin: 0; }
+.slash-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-height: 40vh; overflow-y: auto; }
+.slash-list[hidden] { display: none; }
+.slash-item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 44px; padding: 6px 10px; text-align: left; font-weight: 500; }
+.slash-item b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85rem; }
+.slash-item span { font-size: .78rem; color: var(--muted); }
+.thread .bubble { margin-bottom: 8px; }
+.handoff-note { border: 1px solid var(--info-line); }
+
+/* Brand-colour fallback when an agent's app (and so its mark) is not installed. */
+/* Stand-in when an agent's app icon is missing: the same size and rounded square as the icon it replaces (it takes the
+   icon's own class), in the agent's colour, never blank. */
+.mark { display: inline-grid; place-items: center; flex: none; aspect-ratio: 1; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line);
+  color: #fff; font-size: .7rem; font-weight: 800; line-height: 1; }
+.pill-icon.mark { border-radius: 5px; }
+.agent-icon.mark { border-radius: 6px; }
+.mark-hermes { background: #111111; box-shadow: inset 0 0 0 1px #5b6270; }
+.mark-openclaw { background: #f0443d; }
+.mark-claude { background: #d97757; }
+.mark-codex { background: #5a6cf7; }
+
+/* Close / reopen button at the end of each card's header row (44px tap target, small glyph). */
+.x { flex: none; width: 36px; min-height: 36px; padding: 0; margin: -6px -6px 0 -2px; border: 0; background: transparent; color: var(--muted); font-size: 1.25rem; font-weight: 400; line-height: 1; }
+.x:hover { color: var(--text); }
+
+
+/* ---------- v3: end of the reply + multiple-choice questions ---------- */
+.msg.reply { -webkit-line-clamp: 4; }
+.question { display: grid; gap: 6px; }
+.q-text { margin: 0; font-size: .86rem; font-weight: 600; overflow-wrap: anywhere; }
+.opt { display: flex; align-items: flex-start; gap: 8px; width: 100%; min-height: 44px; padding: 9px 12px; text-align: left;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: .86rem; cursor: pointer; }
+.opt:disabled { opacity: .55; cursor: not-allowed; }
+.opt:not(:disabled):hover, .opt:not(:disabled):active { border-color: var(--brand-purple); }
+.opt-n { flex: none; min-width: 1.4em; font-weight: 700; color: var(--muted); }
+.opt-label { min-width: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.opt.multi { align-items: center; }
+.opt.multi input { width: 20px; height: 20px; flex: none; margin: 0; }
+.opt.other { color: var(--muted); }
+.opt-send { min-height: 44px; }
+.msg.asks { color: var(--text); font-weight: 600; -webkit-line-clamp: 5; }
+.msg.after { -webkit-line-clamp: 1; color: var(--muted); font-size: .8rem; cursor: default; }
+
+/* Selected status filter: "All" is a plain white pill; every other status gets a ring in its own status colour. */
+#statusChips button[aria-pressed="true"] { --ring: var(--muted); background: var(--surface); color: var(--text-strong); border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring); }
+#statusChips button[data-status="all"][aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: none; }
+#statusChips button[data-status="blocked"] { --ring: var(--danger); }
+#statusChips button[data-status="review"] { --ring: var(--waiting); }
+#statusChips button[data-status="working"] { --ring: var(--working); }
+#statusChips button[data-status="idle"] { --ring: var(--idle); }
+#statusChips button[data-status="done"] { --ring: var(--done); }
+#statusChips button[data-status="closed"] { --ring: var(--muted); }
+.request-detail { margin: 0; padding: 8px 10px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
+  font: .8rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+.request-detail.open { display: block; -webkit-line-clamp: unset; }
+
+/* ---------- New chat ---------- */
+.new-chat { margin-left: auto; min-height: 40px; padding: 6px 14px; border-radius: 999px; font-weight: 700;
+  background: var(--surface); border: 1px solid var(--brand-purple); color: var(--text-strong); box-shadow: inset 0 0 0 1px var(--brand-purple); white-space: nowrap; }
+.nc-agents { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.nc-agent { padding: 4px 12px 4px 8px; }
+.nc-agent:disabled { opacity: .45; }
+.nc-name { font-weight: 600; }
+.nc-chosen { margin: -4px 0 10px; font-size: .85rem; color: var(--muted); }
+/* Phones: logos only, one row of equal buttons (names made it crowded). Each name stays in the button's
+   label for screen readers, and the line under the row says who is picked. */
+@media (max-width: 600px) {
+  .nc-agents { flex-wrap: nowrap; gap: 6px; }
+  .nc-agent { flex: 1 1 0; min-width: 0; min-height: 48px; justify-content: center; padding: 4px; }
+  .nc-agent .nc-name { display: none; }
+  .nc-agent .agent-icon { width: 28px; height: 28px; margin: 0; }
+}
+.nc-field { display: grid; gap: 4px; margin-bottom: 6px; font-size: .85rem; color: var(--muted); }
+.nc-field select { width: 100%; min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+@media (max-width: 600px) {
+  .new-chat { padding: 4px 12px; min-height: 36px; font-size: .9rem; }
+  .new-chat .nc-long { display: none; }
+  .top-row .updated { font-size: .72rem; }
+}
+/* Header stays one line on phones: the "Updated…" text gives way, never the New chat button. */
+.top-row { flex-wrap: nowrap; }
+.top-row .updated { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top-row .wordmark, .new-chat { flex: none; }
+
+/* ---------- Working glow: a ring that slowly turns in the agent's colour ---------- */
+/* Deferred (in Closed): a calm grey-violet pill; text #fff on #5b5470 is 7.1:1. */
+.pill.deferred { background: #5b5470; color: #fff; }
+[data-agent="codex"] { --agent: #5a6cf7; }
+[data-kind="claude"] { --agent: #d97757; } /* every Claude Code account: Claude's colour for its working glow */
+/* Accent presets a Claude Code account can pick in the setup (`accent`), so accounts that share Claude's mark are easy
+   to tell apart. "blue-yellow": a blue glow and card tint, and a blue / yellow split button. "green-purple": a green /
+   purple split button. White text stays above 7:1 on every half (lowest 7.8:1, on the yellow half).
+   Contrast on the blue card tint: --text 13.2:1, --muted 6.8:1; a tag (#fff on --accent-blue-strong) 7.8:1. */
+:root { --accent-blue: #4f86e8; --accent-blue-strong: #2a4f9a; --accent-blue-tint: #172238; }
+[data-accent="blue-yellow"] { --agent: var(--accent-blue); }
+/* A Claude account's short tag on its cards (the setup's `tag`). */
+[data-agent="openclaw"] { --agent: #f0443d; }
+[data-agent="hermes"] { --agent: var(--hermes-glow); }
+@property --glow-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+/* Plan usage on an agent button (app.js usageRing): the outline drains clockwise from 12 o'clock as the session or
+   week window fills, drawn as a path on the button's edge. The working glow (::before) turns on top of it. */
+.agent-pill.has-usage { position: relative; --usage-color: var(--good, #4cc38a); }
+.agent-pill.usage-warn { --usage-color: var(--waiting); }
+.agent-pill.usage-high { --usage-color: var(--danger); }
+.usage-ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.usage-ring path { fill: none; stroke-width: 2; stroke-linecap: round; }
+.usage-ring .track { stroke: color-mix(in srgb, var(--usage-color) 18%, transparent); }
+.usage-ring .fill { stroke: var(--usage-color); }
+@keyframes glow-turn { to { --glow-angle: 360deg; } }
+.glow { position: relative; box-shadow: 0 0 14px -4px var(--agent); }
+.glow::before {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; pointer-events: none; z-index: 1;
+  background: conic-gradient(from var(--glow-angle), transparent 0deg 200deg, var(--agent) 300deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: glow-turn 2.4s linear infinite;
+}
+.card.glow::before { inset: -1px -1px -1px -4px; }
+/* Agent buttons: two tracks. The usage gauge sits on the button's own edge; the working glow turns on
+   its own ring just outside it, with a dark gap between, so the two never overlap. */
+.agent-pill.glow::before { inset: -5px; padding: 2px; }
+/* Waiting on you: a steady, soft accent (no motion) so it reads differently from working. */
+.card.review { box-shadow: 0 0 0 1px color-mix(in srgb, var(--waiting) 28%, transparent); }
+.card.blocked { box-shadow: 0 0 0 1px color-mix(in srgb, var(--danger) 30%, transparent); }
+.card.approval { box-shadow: 0 0 0 1px color-mix(in srgb, var(--danger) 30%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .glow::before { animation: none; background: color-mix(in srgb, var(--agent) 70%, transparent); }
+}
+
+/* ---------- Projects: header with counts, tap to fold ---------- */
+.group h2 .project-head { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; width: 100%; min-height: 40px; cursor: pointer; }
+.group h2 .project-head:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+.project-name { font-weight: 700; letter-spacing: .04em; overflow-wrap: anywhere; }
+.project-counts { display: flex; flex-wrap: wrap; gap: 4px 8px; font-size: .74rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--muted); flex: 1 1 auto; min-width: 0; }
+.project-counts .count.blocked { color: var(--danger); }
+.project-counts .count.review { color: var(--waiting); }
+.project-counts .count.working { color: var(--working); }
+.chev { margin-left: auto; color: var(--muted); }
+.group.folded { margin-bottom: 4px; }
+.age-chips { margin-top: 6px; }
+#ageChips button[aria-pressed="true"] { box-shadow: none; }
+
+/* ---------- Compact board: one row of chips, folder on the title line, shorter buttons ---------- */
+.chips { gap: 4px; flex-wrap: nowrap; }
+.chips button { min-height: 28px; padding: 3px 9px; font-size: .78rem; }
+@media (max-width: 600px) { .chips { gap: 3px; } .chips button { padding: 3px 4px; font-size: .68rem; } }
+@media (max-width: 340px) { .chips { gap: 3px; } .chips button { padding: 3px 4px; font-size: .66rem; } }
+/* No separate folder row: the title gets the middle (up to two lines); status and folder stack on the right. */
+.card-head { align-items: flex-start; }
+.head-text .title { -webkit-line-clamp: unset; display: block; }
+.title-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.head-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; max-width: 42%; min-width: 0; }
+.head-right .where { font-size: .7rem; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill { font-size: .66rem; padding: 1px 6px; }
+.actions { gap: 5px; }
+.actions button { min-height: 32px; padding: 3px 2px; font-size: .74rem; }
+@media (max-width: 360px) { .actions { gap: 4px; } .actions button { font-size: .7rem; padding: 3px 1px; } }
+.opt { min-height: 36px; padding: 6px 10px; }
+.actions .answer:not(:disabled) { background: var(--surface); border-color: var(--brand-purple); color: var(--text-strong); box-shadow: inset 0 0 0 1px var(--brand-purple); }
+
+/* ---------- Settings ---------- */
+.gear { flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; font-size: 1.15rem; line-height: 1; display: grid; place-items: center; }
+.set-section { border-top: 1px solid var(--line); padding: 12px 0; display: grid; gap: 8px; }
+.set-section:first-child { border-top: 0; padding-top: 0; }
+.set-section h3 { margin: 0; font-size: .9rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.set-section input[type="password"] { width: 100%; min-height: 40px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+.set-toggle { display: flex; align-items: center; gap: 10px; font-size: .88rem; }
+.set-toggle input { width: 20px; height: 20px; flex: none; }
+.set-agents { display: grid; gap: 10px; }
+.set-agent { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.set-agent-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.set-version { margin-left: auto; font: .8rem ui-monospace, Menlo, monospace; color: var(--muted); }
+.set-update { margin: 0; font-size: .82rem; color: var(--waiting); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.set-update .copy { min-height: 30px; padding: 2px 10px; }
+.set-pin { display: grid; gap: 8px; margin: 0; }
+
+/* ---------- Big cards: two per screen on phones, one row of three on desktop ---------- */
+/* Each card is sized from the screen. Its text fills the space above the buttons and shows the END of the message
+   (app.js scrolls it there); the top fades when there is more above. Tapping the text opens it in full. */
+.card { min-height: max(calc(50svh - 15px), 260px); }
+.card .actions { margin-top: auto; }
+.card-text { flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
+.card-text .msg { display: block; -webkit-line-clamp: unset; flex: none; }
+.card-text .msg.you, .card-text .msg.after { display: -webkit-box; -webkit-line-clamp: 1; }
+.card-text.clipped { -webkit-mask-image: linear-gradient(transparent, #000 2.5em); mask-image: linear-gradient(transparent, #000 2.5em); }
+/* Tapping a card's text opens that one card over the board, at full length (app.js openCard); the board stays as it is. */
+.card-text, .card [data-expandable] { cursor: pointer; }
+dialog.card-sheet { width: min(860px, 100vw); }
+.card.full { min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.card.full::before { display: none; }
+.card.full .card-text { flex: none; overflow: visible; -webkit-mask-image: none; mask-image: none; cursor: auto; }
+.card.full .msg, .card.full .card-text .msg.you, .card.full .card-text .msg.after, .card.full .request-detail { display: block; -webkit-line-clamp: unset; }
+.card.full [data-expandable] { cursor: auto; }
+/* Its × (close or end the chat) stays on the board card; here it would sit next to the overlay's own Close. */
+.card.full .card-head .x { display: none; }
+.card.full .card-text .msg { font-size: .95rem; line-height: 1.55; }
+
+/* Refresh (next to New chat): the arrow turns while the board reads every agent. */
+.refresh-btn { flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
+.refresh-btn.reading svg { animation: refresh-turn .9s linear infinite; }
+@keyframes refresh-turn { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .refresh-btn.reading svg { animation: none; } }
+/* The top bar stays put from 760px; --top-h is its measured height (set in app.js), so a row fills the rest. */
+@media (min-width: 760px) {
+  /* 3 per screen: one tall row. 4 and 6 per screen: two rows, each card half the screen (below). */
+  .card { min-height: max(calc(100svh - var(--top-h, 230px) - 64px), 320px); }
+  html[data-grid="4"] .card, html[data-grid="6"] .card { min-height: max(calc((100svh - var(--top-h, 230px) - 74px) / 2), 260px); }
+  .card-text .msg { font-size: .9rem; line-height: 1.5; }
+}
+
+/* ---------- Desktop header in two rows: the right half was empty while four rows stacked on the left ----------
+   Row 1: wordmark · updated · search · time chips · layout · New chat · settings. Row 2: agents · Status dropdown.
+   The markup stays the same (phones keep their stacked header); .top-row and .age-row step aside so their items
+   join these rows. */
+@media (min-width: 1100px) {
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .top::after { content: ''; flex-basis: 100%; order: 55; }
+  .top .age-row { display: contents; }
+  .top .search { order: 30; flex: 1 1 240px; max-width: 420px; }
+  .top .age-chips { order: 35; margin: 0; flex: none; }
+  #agentPills { order: 60; margin: -8px -4px; flex: 0 1 auto; min-width: 0; }
+  /* The rest of row 2: never wraps to a third row; on a narrow window the chips scroll sideways instead. */
+  #statusChips { order: 70; margin: 0; flex: 1 1 0; min-width: 0; }
+  .agent-pill { min-height: 34px; padding: 3px 10px 3px 7px; font-size: .8rem; }
+}
+
+/* ---------- Answering a list of decisions one at a time (Answer on a card whose question is a numbered list) ---------- */
+.step-count { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.decision-text { margin: 0 0 4px; font-size: .95rem; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.opt.picked { border-color: var(--brand-purple); box-shadow: inset 0 0 0 1px var(--brand-purple); }
+
+/* ---------- Earlier turns on a card that needs you: the chat before the last reply, dimmed ---------- */
+.card-text .turn { margin: 0; font-size: .8rem; line-height: 1.45; color: var(--muted); white-space: pre-line; overflow-wrap: anywhere; flex: none; }
+.card-text .turn.you { font-style: italic; }
+.card-text .turn + .msg, .card-text .turn + .msg.ask-context { margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+
+/* ---------- Update: a status report with nothing for you to do (in its project, not in Needs you) ---------- */
+.card.update { border-left-color: var(--idle); }
+.pill.update { background: var(--surface-2); color: var(--text); border: 1px solid var(--idle); }
+.project-counts .count.update { color: var(--idle); }
+#statusChips button[data-status="update"] { --ring: var(--idle); }
+
+/* ---------- Board health on the settings gear: replaces the always-on "Updated just now" ---------- */
+.gear[data-health="ok"] { box-shadow: 0 0 0 2px color-mix(in srgb, var(--good, #4cc38a), transparent 30%); } /* a little soft, so the clock spark shows */
+.gear[data-health="stale"] { box-shadow: 0 0 0 2px var(--waiting); }
+.gear[data-health="offline"] { box-shadow: 0 0 0 2px var(--danger); }
+.gear[data-health="restarting"] { box-shadow: 0 0 0 2px var(--restarting, #f0883e); }
+.updated:empty { display: none; }
+.top-row .updated:not(:empty) { color: var(--waiting); }
+
+/* ---------- Cards per screen: the 3 / 4 / 6 switch, computers only ---------- */
+.grid-chips { display: none; }
+@media (min-width: 760px) {
+  .grid-chips { display: flex; margin: 0 0 0 auto; flex: none; }
+  .grid-chips button { min-width: 32px; font-variant-numeric: tabular-nums; }
+  #gridChips button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: none; }
+}
+@media (min-width: 1100px) { .top .grid-chips { order: 36; margin: 0; } }
+/* 2 × 2 keeps two columns on wide screens; 3 and 6 per screen use three. */
+@media (min-width: 1200px) { html[data-grid="4"] .cards { grid-template-columns: repeat(2, 1fr); } }
+/* Wide screens: the board stops growing and sits in the middle, so lines stay readable (two columns need a
+   narrower board than three). The header stays full width. */
+main { max-width: 1900px; margin: 0 auto; }
+html[data-grid="4"] main { max-width: 1500px; }
+
+/* ---------- Agent lights (lib/health.js), in the colours everyone reads ----------
+   green ready · grey nothing running (quiet, not bad) · orange restarting · red down */
+:root { --good: #4cc38a; --restarting: #f0883e; }
+.light.ok { background: var(--good); }
+.light.idle { background: var(--idle); }
+.light.restarting { background: var(--restarting); }
+.light.down { background: var(--danger); }
+
+/* ---------- The settings gear as a clock ----------
+   A light green spark with a fading tail goes once round the ring, clockwise from 12 o'clock, over one board round
+   (app.js startClock); when new data lands at 12 the ring gives one faint pulse outwards and the spark goes again.
+   The ring's colour is the board's health: green current, amber stale, orange restarting, red offline; the spark and
+   pulse only run while it is green. Reduced motion: neither, the ring just holds its colour. */
+@property --sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.gear { position: relative; --pulse: var(--good, #4cc38a); --spark: color-mix(in srgb, var(--pulse), white 60%); }
+/* The spark: an 80° tail, clear at its end and brightest at its head (the head sits at --sweep). */
+.gear::before {
+  content: ''; position: absolute; inset: -3.5px; border-radius: 50%; padding: 3.5px; pointer-events: none; opacity: 0;
+  background: conic-gradient(from calc(var(--sweep) - 80deg), transparent 0deg, color-mix(in srgb, var(--spark), transparent 40%) 50deg, var(--spark) 76deg, #fff 80deg, transparent 80.5deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  filter: drop-shadow(0 0 3px var(--spark)) drop-shadow(0 0 1px #fff);
+}
+.gear.clock[data-health="ok"]::before { opacity: 1; animation: gear-clock var(--cycle, 30s) linear var(--elapsed, 0s) forwards; }
+@keyframes gear-clock { from { --sweep: 0deg; } to { --sweep: 360deg; } }
+/* Reading every agent now (the page just opened or was pulled to refresh): the spark spins until the board lands. */
+#settingsBtn.reading::before { opacity: 1; animation: gear-clock .9s linear infinite; }
+/* The pulse: one thin ring, a little way out, fading as it goes. */
+.gear::after {
+  content: ''; position: absolute; inset: -2px; border-radius: 50%; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 0 1.5px var(--spark);
+}
+.gear.pulse[data-health="ok"]::after { animation: gear-pulse 1.1s ease-out; }
+@keyframes gear-pulse { from { opacity: .55; transform: scale(1); } to { opacity: 0; transform: scale(1.3); } }
+/* Pull down to refresh in the Home Screen app (app.js): a small pill under the top bar that follows the finger. */
+.pull-hint {
+  position: fixed; z-index: 30; left: 50%; top: calc(var(--top-h, 60px) + 6px); display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 999px; font-size: .82rem; color: var(--text); background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line), 0 4px 14px var(--shadow); pointer-events: none;
+  opacity: 0; transform: translate(-50%, calc(var(--pull, 0px) - 12px)); transition: opacity .15s;
+}
+.pull-hint.show { opacity: 1; }
+.pull-hint .pull-arrow { display: inline-block; transition: transform .15s; }
+.pull-hint.ready { box-shadow: inset 0 0 0 1px var(--good, #4cc38a), 0 4px 14px var(--shadow); }
+.pull-hint.ready .pull-arrow { transform: rotate(180deg); color: var(--good, #4cc38a); }
+@media (prefers-reduced-motion: reduce) {
+  .gear.clock[data-health="ok"]::before { animation: none; opacity: 0; }
+  .gear.pulse[data-health="ok"]::after { animation: none; }
+  #settingsBtn.reading::before { animation: none; opacity: 0; }
+}
+
+/* The status and time dropdowns (phones show both; computers 1100px+ show Status at the end of the agent row). */
+.filter-select select {
+  min-height: 34px; padding: 4px 26px 4px 12px; border-radius: 999px; font-size: .8rem; font-weight: 500;
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a3aab8' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center / 10px 6px;
+  -webkit-appearance: none; appearance: none; color: var(--text); border: 1px solid var(--line);
+}
+.filter-select select.on { border-color: var(--brand-purple); box-shadow: inset 0 0 0 1px var(--brand-purple); }
+
+/* ---------- Phone header: agents fill their row, status + time as dropdowns beside search ----------
+   Row 1 wordmark · New · gear. Row 2 the agent buttons, equal widths, room for their glow. Row 3 Status ▾ · Time ▾ ·
+   search. The chips stay on computers; on phones the dropdowns press the same chips (app.js). */
+.filter-select { display: none; }
+@media (max-width: 600px) {
+  .agents { overflow: visible; margin: 12px 0 0; padding: 5px 0; gap: 8px; }
+  .agent-pill, .agent-pill:first-child, .agent-pill:not(:first-child) { flex: 1 1 0; min-width: 0; justify-content: center; padding: 4px 4px; }
+  #statusChips, #ageChips { display: none; }
+  .age-row { margin-top: 12px; gap: 6px; }
+  .filter-select { display: flex; flex: none; }
+  .age-row .search { flex: 1 1 auto; min-width: 0; }
+  .age-row .search input { min-height: 34px; }
+}
+/* The settings gear sits at the far right, after New chat; the space between the wordmark and those
+   two separates the brand from the actions. Computers (1100px+) place them in the two-row header above. */
+.top-row .refresh-btn { order: 1; margin-left: auto; }
+.top-row .theme-btn + .refresh-btn { margin-left: 0; }
+.top-row .new-chat { order: 1; margin-left: 0; }
+.top-row .gear { order: 2; margin-left: 0; }
+
+/* ---------- Same-size agent buttons and icons ----------
+   Every agent button is as wide as the widest (All included), contents centred; phones already share the row equally.
+   Icons are trimmed to their artwork when made (lib/icons.js), so each logo fills the same rounded square. */
+@media (min-width: 601px) {
+  #agentPills { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .agent-pill, .agent-pill:first-child { justify-content: center; }
+}
+.pill-icon, .agent-icon { object-fit: cover; aspect-ratio: 1; }
+
+/* The cards-per-screen switch drawn as little grids, like a view switch in a Mac app. */
+.grid-chips button { display: inline-grid; place-items: center; min-width: 34px; padding: 3px 8px; }
+.grid-chips svg { display: block; fill: currentColor; }
+
+/* Computers (1100px+): equal agent buttons fill row 2, so Status is the dropdown at its end. */
+@media (min-width: 1100px) {
+  #statusChips { display: none; }
+  .top .status-select { display: flex; flex: none; order: 70; }
+}
+
+/* ---------- Header on computers: fill the width, line up with the board ----------
+   1100px+: row 1 is the agent buttons stretched across the width with Status at the end; row 2 the time window, the
+   layout switch, the at-a-glance counts and a compact search. The header keeps the board's own width
+   (and centring), so on a wide screen it lines up with the cards instead of running edge to edge. */
+@media (min-width: 1100px) {
+  .top-row, .top { max-width: 1900px; margin-left: auto; margin-right: auto; }
+  html[data-grid="4"] .top-row, html[data-grid="4"] .top { max-width: 1500px; }
+  #agentPills { order: 10; flex: 1 1 auto; }
+  .top .status-select { order: 20; }
+  .top::after { order: 30; }
+  .top .age-chips { order: 40; }
+  .top .grid-chips { order: 45; margin: 0; }
+  .top .search { order: 50; flex: 1 1 260px; max-width: none; }
+}
+/* The logo at the height of the buttons beside it (New chat, settings: 40px). */
+@media (min-width: 1100px) {
+  .wordmark, .wordmark .wordmark-btn { gap: 10px; }
+  .wordmark .mark-logo { width: 40px; height: 40px; }
+  .wordmark .wordmark-img { height: 31px; }
+}
+
+
+/* ---------- Continue: push a stalled chat (Update) on to its next gate ---------- */
+.actions .continue-btn:not(:disabled) { background: var(--good-bg); border-color: var(--good); color: var(--good-text); }
+.continue-all { margin-left: auto; min-height: 30px; padding: 2px 12px; border-radius: 999px; font-size: .78rem; font-weight: 600;
+  letter-spacing: 0; text-transform: none; background: var(--good-bg); border: 1px solid var(--good); color: var(--good-text); }
+.group.recent-list h2.recent-title { display: flex; align-items: center; gap: 8px; }
+/* Needs you / Active grouped by agent (app.js byAgent): a quiet sub-heading over each agent's cards. */
+.cards.grouped { row-gap: 18px; }
+.agent-group.span-2 { grid-column: span 2; }
+.agent-group.span-3 { grid-column: span 3; }
+.agent-group { display: grid; grid-template-columns: subgrid; row-gap: 10px; grid-template-rows: auto; grid-auto-rows: 1fr; }
+.agent-group-title { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin: 0; font-size: .82rem; font-weight: 700;
+  color: var(--text); letter-spacing: 0; text-transform: none; }
+.agent-group-title .pill-icon { width: 18px; height: 18px; border-radius: 5px; }
+.agent-group-title .gcount { color: var(--muted); font-weight: 600; }
+
+/* The message box's buttons (Reply / Changes / New chat): Image, Mic and Suggest outlined in purple, Submit in green,
+   the bottom three the same size. */
+.btn-icon { flex: none; }
+.accent-btn, .send-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background-color .12s, border-color .12s, filter .12s; }
+.accent-btn { border: 1.5px solid var(--brand-purple); color: var(--accent-text);
+  background: color-mix(in srgb, var(--brand-purple) 14%, var(--surface)); }
+.accent-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--brand-purple) 26%, var(--surface)); }
+.accent-btn .btn-icon { color: var(--accent-icon); }
+.mic.accent-btn[aria-pressed="true"] { background: var(--danger); border-color: var(--danger); color: #fff; box-shadow: none; }
+.mic.accent-btn[aria-pressed="true"] .btn-icon { color: #fff; }
+.send-btn { background: #1d7f4f; border: 1.5px solid #2fae6e; color: #fff; }
+.send-btn:hover:not(:disabled) { background: #22915b; }
+.compose-actions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+.compose-actions > *, .compose-actions .img-add { min-height: 46px; border-radius: 12px; }
+.suggest-btn.accent-btn { min-height: 38px; padding: 4px 14px 4px 12px; border-radius: 999px; font-size: .85rem; }
+
+/* Demo mode: a small tag after the logo. */
+.demo-tag { font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px;
+  color: var(--waiting); border: 1px solid color-mix(in srgb, var(--waiting) 60%, transparent); }
+
+/* The welcome (app.js openWelcome): one card per agent with its state and next steps. */
+.welcome-agent { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; }
+.welcome-agent.ready { border-color: color-mix(in srgb, var(--good, #4cc38a) 45%, var(--line)); }
+.welcome-agent.not-set-up, .welcome-agent.not-running { border-color: color-mix(in srgb, var(--waiting) 45%, var(--line)); }
+.welcome-agent.not-installed, .welcome-agent.off { opacity: .85; }
+.welcome-agent .note { margin: 0; }
+/* A command is never split mid-word: it moves to its own line, and scrolls sideways if it is still too long. */
+.welcome-agent .steps code { display: inline-block; max-width: 100%; overflow-x: auto; white-space: nowrap; vertical-align: middle; }
+.welcome-badge { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.welcome-badge.ready { color: var(--good, #4cc38a); border-color: var(--good, #4cc38a); }
+.welcome-badge.not-set-up, .welcome-badge.not-running { color: var(--waiting); border-color: var(--waiting); }
+.welcome-done { justify-content: flex-end; }
+
+/* Settings: folding sections in order of priority (app.js settingsGroup). */
+.set-group { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.set-group + .set-group { margin-top: -4px; }
+.set-group > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 12px 14px; min-height: 44px; }
+.set-group > summary::-webkit-details-marker { display: none; }
+.set-group > summary::after { content: '›'; grid-row: 1 / span 2; grid-column: 2; align-self: center; font-size: 1.3rem; color: var(--muted); transition: transform .2s; }
+.set-group[open] > summary::after { transform: rotate(90deg); }
+.set-group-title { font-weight: 700; font-size: .95rem; }
+.set-group-sub { grid-column: 1; font-size: .78rem; color: var(--muted); }
+.set-group-body { display: grid; gap: 10px; padding: 4px 14px 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.set-group-body h4 { margin: 6px 0 0; font-size: .82rem; color: var(--muted); font-weight: 600; }
+.set-actions { flex-wrap: wrap; gap: 8px; }
+.set-agent.off { opacity: .6; }
+.set-switch { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--muted); }
+/* One line per agent: the status word shortens before the On switch would wrap. */
+.set-agent .set-agent-head { flex-wrap: nowrap; }
+.set-agent-head .muted { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.set-agent-head .set-switch { flex: none; }
+.set-agent-head > b { flex: none; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .set-group > summary::after { transition: none; } }
+
+/* Settings → Agent settings (app.js agentSettingsForm). */
+.agent-settings { display: grid; gap: 8px; }
+.agent-settings h4 { margin: 8px 0 0; font-size: .82rem; color: var(--muted); font-weight: 600; }
+.agent-set-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.model-field { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--muted); }
+.model-input { width: 12rem; max-width: 100%; min-height: 34px; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: .85rem; }
+.model-input:disabled { opacity: .6; }
+.agent-set-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.path-input { width: 100%; min-height: 38px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: .85rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.path-input:disabled { opacity: .65; }
+.detect-btn { justify-self: start; }
+.detect-list { display: grid; gap: 10px; margin: 8px 0; }
+.detect-item { align-items: flex-start; }
+.detect-item .muted { font-size: .8rem; }
+/* Settings → Projects (app.js projectSettingsForm). */
+.project-settings { display: grid; gap: 8px; }
+.project-settings h4 { margin: 8px 0 0; font-size: .82rem; color: var(--muted); font-weight: 600; }
+.project-group { display: grid; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.project-group-head { display: flex; gap: 6px; align-items: center; }
+.project-group-head button { min-width: 36px; padding: 2px 8px; }
+.path-input.name-input { font-family: inherit; font-weight: 600; }
+.pick-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pick-chip { min-height: 30px; padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 500; background: var(--bg); border: 1px solid var(--line); color: var(--muted); }
+.pick-chip.on { background: color-mix(in srgb, var(--brand-purple) 22%, var(--surface)); border-color: var(--brand-purple); color: var(--text); box-shadow: none; }
+/* Settings → Phone access (app.js phoneAccessForm). */
+.access-settings { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.access-settings > * { min-width: 0; }
+.access-settings h4 { margin: 8px 0 0; font-size: .82rem; color: var(--muted); font-weight: 600; }
+.reach-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.reach-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.reach-kind { font-weight: 600; min-width: 7.5rem; }
+.reach-list a { color: var(--text); word-break: break-all; }
+.reach-note { flex-basis: 100%; font-size: .78rem; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: .88rem; }
+.steps code { font-size: .8rem; }
+.note.warn { color: var(--waiting); }
+.detect-status { margin: 4px 0 10px; padding-left: 18px; font-size: .8rem; color: var(--muted); }
+
+/* A usage limit on a card, and the Continue planned for it (app.js limitLine). */
+.limit-line { margin: 6px 0 0; font-size: .8rem; color: var(--muted); }
+.limit-line::before { content: '⏸ '; }
+.limit-line.planned { color: var(--good-text); }
+.limit-line.planned::before { content: '⏱ '; }
+.limit-line.problem { color: var(--waiting); }
+.limit-line.problem::before { content: '! '; }
+
+/* Continue, in place (app.js continueButton): Undo with a green fill that drains over the 5 seconds, then Sent. */
+@property --undo-fill { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+.actions .continue-btn.counting {
+  background: linear-gradient(to right, var(--good-fill) var(--undo-fill), var(--good-bg) var(--undo-fill)); border-color: var(--good); color: var(--good-text-strong);
+  animation: undo-drain var(--undo-ms, 5s) linear var(--undo-at, 0s) forwards;
+}
+@keyframes undo-drain { from { --undo-fill: 100%; } to { --undo-fill: 0%; } }
+.actions .continue-btn.sent:disabled { opacity: 1; background: var(--good-bg); border-color: var(--good); color: var(--good-text); }
+.continue-btn .sent-tick { display: inline-block; margin-right: 6px; animation: tick-in .35s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes tick-in { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .actions .continue-btn.counting { animation: none; background: var(--good-fill); }
+  .continue-btn .sent-tick { animation: none; }
+}
+
+/* ---------- Sticky bar: logo, New chat and settings stay on screen; agents and filters scroll ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 7;
+  background: var(--topbar-bg); backdrop-filter: blur(8px);
+  padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
+}
+.top { padding-top: 2px; }
+
+/* ---------- Images on a message (Image button, thumbnails) ---------- */
+.img-add-wrap { display: contents; }
+.img-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.img-list:empty { display: none; }
+.img-list .note { margin: 0; align-self: center; }
+.img-thumb { position: relative; width: 72px; height: 72px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--surface-2); }
+.img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The remove button keeps a 44px tap area (top-right of the thumbnail) and draws a small round ✕ in the corner. */
+.img-remove { position: absolute; top: 0; right: 0; min-height: 44px; min-width: 44px; padding: 3px; border: 0; background: transparent;
+  display: grid; place-items: start end; font-size: 0; }
+.img-remove::before { content: '×'; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0, 0, 0, .75); color: #fff; font-size: 16px; line-height: 1; }
+
+/* Suggest a reply: on request only (the reply box opens empty). */
+.suggest-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.suggest-row .suggest-note { margin: 0; flex: 1 1 200px; }
+.suggest-btn { min-height: 36px; padding: 4px 12px; border-radius: 999px; font-size: .82rem; }
+
+/* ---------- Header light/dark switch (public/theme.js): shows the sun in dark mode, the moon in light mode ---------- */
+.theme-btn .icon-moon { display: none; }
+:root[data-theme="light"] .theme-btn .icon-sun { display: none; }
+:root[data-theme="light"] .theme-btn .icon-moon { display: block; }
+
+/* ---------- Light theme ----------
+   The same tokens, light. Text and status colours checked for WCAG AA: --text 15.9:1 and --muted 5.9:1 on --surface;
+   white on each filled status pill at least 4.6:1. The terminal-screen box stays dark (it is a terminal). */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #eef0f4;
+  --line: #d9dde5;
+  --text: #171a21;
+  --muted: #5a6270;
+  --waiting: #9a5b00;
+  --working: #0b7782;
+  --idle: #656d7b;
+  --done: #2a62d4;
+  --danger: #c2372d;
+  --focus: #8a3487;
+  --brand-green: #4d7a47;
+  --brand-purple: #8a3487;
+  --brand-purple-strong: #74296f;
+  --text-strong: #12141a;
+  --topbar-bg: rgba(245, 246, 248, .94);
+  --shadow: rgba(20, 24, 33, .14);
+  --backdrop: rgba(15, 17, 21, .35);
+  --good: #1d8f57;
+  --good-bg: #e3f5eb; --good-text: #12583a; --good-fill: #bfe6d0; --good-text-strong: #0c4029;
+  --warn-bg: #fcf3e2; --needs-bg: #fcefd6; --on-warn: #fff;
+  --info-bg: #eaf0fc; --info-line: #9fb5e5; --info-text: #23458f;
+  --danger-line: #e2a49e; --danger-text: #a3271e; --off-line: #e6b3ad; --on-danger: #fff;
+  --done-line: #a9c0ee;
+  --code-bg: #f3f4f7;
+  --count-bg: rgba(0, 0, 0, .07);
+  --pill-text: #fff;
+  --accent-text: #5c1f59;
+  --accent-icon: var(--brand-purple);
+  --hermes-glow: #3a3f4b;
+  --restarting: #c2610c;
+  --accent-blue: #2f6bd8; --accent-blue-tint: #e9f0fd;
+}
+
+/* ---------- Phones: the header never wider than the screen ----------
+   Logo, light/dark, refresh, New chat and settings share 390px; without this the page scrolled sideways and pushed
+   the bottom of every sheet (its buttons) off screen on an iPhone. */
+html, body { overflow-x: clip; }
+.top-row { min-width: 0; }
+@media (max-width: 600px) {
+  .top-row { gap: 6px; }
+  .top-row .refresh-btn, .top-row .gear { width: 36px; height: 36px; min-height: 36px; }
+  .demo-tag { display: none; }
+}
+@media (max-width: 380px) { .wordmark .wordmark-img { display: none; } }
+
+/* ==========================================================================================================
+   Polish pass: cards sized by their content, one main button per card, the question in a callout, hover and
+   press feedback, smoother dialogs, nothing under 12px. (A tactile theme layer can restyle all of this.)
+   ========================================================================================================== */
+:root { --go-bg: #1d7f4f; --go-line: #2fae6e; --go-hover: #22915b; --hover-tint: rgba(255, 255, 255, .06);
+  --stripe-a: #4f86e8; --stripe-b: #f5c400; }
+:root[data-theme="light"] { --hover-tint: rgba(0, 0, 0, .045); }
+
+/* Cards: as tall as their content. Only the chat text is capped (it then shows its end and fades at the top, as
+   before), by the share of the screen the layout switch gives a card; a question's options, notes and buttons always
+   fit inside the card, however long. A row still lines up to its tallest card. */
+.card { min-height: 0; max-height: none; }
+.card-text { max-height: max(calc(50svh - 160px), 140px); }
+@media (min-width: 760px) {
+  .card { min-height: 0; max-height: none; }
+  .card-text { max-height: max(calc(100svh - var(--top-h, 230px) - 220px), 200px); }
+  html[data-grid="4"] .card, html[data-grid="6"] .card { min-height: 0; max-height: none; }
+  html[data-grid="4"] .card-text, html[data-grid="6"] .card-text { max-height: max(calc((100svh - var(--top-h, 230px) - 74px) / 2 - 150px), 140px); }
+}
+.card.full .card-text { max-height: none; }
+dialog .card.full, #sheet .card.full { min-height: 0; max-height: none; }
+/* The text takes its own height and gives way (scrolling to its end) only when the card reaches its cap. */
+.card-text { flex: 1 1 auto; }
+
+/* A running card: how long it has been working and what you asked, instead of an empty frame. */
+.working-line { display: flex; align-items: center; gap: 6px; margin: 0; font-size: .85rem; color: var(--working); min-width: 0; }
+.working-line .working-ask { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.working-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--working); animation: working-pulse 1.6s ease-in-out infinite; }
+@keyframes working-pulse { 50% { opacity: .35; transform: scale(.8); } }
+@media (prefers-reduced-motion: reduce) { .working-dot { animation: none; } }
+
+/* What the agent asks you, right above the buttons: red for an approval or a blocked question, amber for review. */
+.ask-callout { flex: none; display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px;
+  --tone: var(--waiting); background: color-mix(in srgb, var(--tone) 9%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--tone) 42%, transparent); }
+.card.approval .ask-callout, .card.blocked .ask-callout { --tone: var(--danger); }
+.ask-callout .msg { margin: 0; }
+.ask-callout .msg.asks { font-size: .95rem; font-weight: 650; color: var(--text-strong); }
+.ask-callout .request-detail { margin: 0; }
+.card.full .ask-callout { margin-top: 4px; }
+/* A question inside the reply (no menu): marked the same way, at the end of the text. */
+.card-text .msg.reply.asks { padding-left: 10px; border-left: 3px solid color-mix(in srgb, var(--waiting) 70%, transparent); font-weight: 600; }
+.card.blocked .card-text .msg.reply.asks { border-left-color: color-mix(in srgb, var(--danger) 70%, transparent); }
+
+/* Card buttons: one main action, filled; the rest quiet; Defer and Details in "⋯". Bigger now there are fewer. */
+.actions { position: relative; gap: 6px; }
+.actions button { min-height: 40px; padding: 4px 6px; font-size: .8rem; border-radius: 10px; }
+@media (max-width: 600px) { .actions button { min-height: 44px; } }
+.actions .ask { background: transparent; border-color: var(--line); color: var(--text); }
+/* (Classic only: the tactile style draws its main keys as lit keys, public/tactile.css.) */
+:root:not([data-style="tactile"]) .actions .primary-action:not(:disabled) { font-weight: 700; color: #fff; box-shadow: none; }
+:root:not([data-style="tactile"]) .actions .approve.primary-action:not(:disabled),
+:root:not([data-style="tactile"]) .actions .continue-btn.primary-action:not(:disabled):not(.counting):not(.sent) {
+  background: var(--go-bg); border-color: var(--go-line); }
+:root:not([data-style="tactile"]) .actions .answer.primary-action:not(:disabled),
+:root:not([data-style="tactile"]) .actions .review-btn.primary-action:not(:disabled) {
+  background: var(--brand-purple-strong); border-color: var(--brand-purple); }
+.actions .more-btn { flex: 0 0 44px; padding: 0; font-size: 1.15rem; font-weight: 800; line-height: 1; letter-spacing: .04em; }
+.actions .more-btn[aria-expanded="true"] { background: var(--surface-2); border-color: var(--muted); color: var(--text-strong); box-shadow: none; }
+.more-menu { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 6; display: grid; gap: 4px; min-width: 170px; padding: 6px;
+  border-radius: 12px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 32px var(--shadow);
+  animation: menu-in .14s ease-out; }
+.more-menu button { justify-content: flex-start; text-align: left; min-height: 40px; padding: 6px 12px; font-size: .88rem; background: transparent; border-color: transparent; }
+@keyframes menu-in { from { opacity: 0; transform: translateY(4px); } }
+
+/* Hover (mouse) and press feedback everywhere: a light wash on hover, a 1px press. */
+button, .card, .opt, .agent-pill { transition: background-color .12s, border-color .12s, color .12s, filter .12s, transform .08s, outline-color .12s; }
+@media (hover: hover) {
+  button:hover:not(:disabled):not(.agent-pill):not(.counting) { background-image: linear-gradient(var(--hover-tint), var(--hover-tint)); }
+  .agent-pill:hover:not(:disabled) { border-color: color-mix(in srgb, var(--line) 45%, var(--text)); }
+  #board .card:not(.full):hover { outline: 1px solid color-mix(in srgb, var(--line) 40%, var(--text)); outline-offset: -1px; }
+}
+button:active:not(:disabled), .opt:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) { button, .card, .opt, .agent-pill { transition: none; } button:active:not(:disabled) { transform: none; } }
+
+/* Agent buttons: the usage ring and the running ring, no halo. */
+.agent-pill.glow { box-shadow: none; }
+@media (min-width: 601px) { #agentPills { grid-auto-columns: minmax(auto, 220px); } }
+@media (min-width: 1100px) { #agentPills { flex: 1 1 0; } }
+/* Which Claude account: its tag (e.g. WORK) as a small badge in the account's colour, on its button and its cards
+   (app.js acctBadge). Nothing else marks an account: no stripes, no split colours. */
+.acct { display: inline-block; flex: none; margin: 0 4px 0 0; padding: 1px 6px; border-radius: 6px; font-size: .7rem; font-weight: 800;
+  letter-spacing: .04em; line-height: 1.35; vertical-align: 1px; --acct-colour: var(--muted);
+  color: var(--text-strong); background: color-mix(in srgb, var(--acct-colour) 24%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--acct-colour) 65%, transparent); }
+[data-accent="blue-yellow"] .acct, .acct[data-accent="blue-yellow"] { --acct-colour: var(--accent-blue); }
+[data-accent="green-purple"] .acct { --acct-colour: var(--good); }
+.agent-pill .acct, .nc-agent .acct { margin: 0 0 0 2px; font-size: .68rem; }
+
+/* Nothing under 12px. */
+.pill { font-size: .75rem; padding: 1px 7px; }
+.head-right .where { font-size: .75rem; }
+.chips button { font-size: .8rem; }
+@media (max-width: 600px) { .chips button { font-size: .75rem; } }
+
+/* Dialogs: a soft entrance, depth, and room for the iPhone home bar under the buttons. */
+dialog { box-shadow: 0 24px 64px var(--shadow); }
+dialog[open] { animation: sheet-in .18s ease-out; }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(12px); } }
+@media (min-width: 760px) { @keyframes sheet-in { from { opacity: 0; transform: scale(.98); } } }
+dialog::backdrop { backdrop-filter: blur(2px); }
+.sheet-body { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+@media (prefers-reduced-motion: reduce) { dialog[open], .more-menu { animation: none; } }
+
+/* Section headings: the clearest text on the board, the count as a small badge. */
+.group.needs-list h2.needs-title, .group.recent-list h2.recent-title { font-size: 1.05rem; font-weight: 750; text-transform: none; letter-spacing: 0;
+  color: var(--text-strong); align-items: center; margin-bottom: 10px; }
+.group.needs-list h2.needs-title::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--waiting); flex: none; }
+.group.recent-list h2.recent-title::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--working); flex: none; }
+.needs-title .gcount, .recent-title .gcount { font-size: .78rem; font-weight: 650; padding: 1px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+/* Project rows: a contained list, the arrow by the name, a hover wash. */
+.group h2 .project-head { padding: 4px 10px; margin: 0 -10px; border-radius: 10px; max-width: 900px; }
+.group h2 .project-head .chev { margin-left: 4px; order: -1; }
+@media (hover: hover) { .group h2 .project-head:hover { background: var(--surface-2); } }
+
+/* ---------- At a glance (computers): live counts beside a compact search ---------- */
+.glance { display: none; }
+@media (min-width: 1100px) {
+  .glance { display: flex; order: 48; flex: 1 1 auto; justify-content: center; gap: 6px; min-width: 0; }
+  .top .search { order: 50; flex: 0 1 240px; max-width: 240px; }
+}
+.glance-item { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 2px 12px; border-radius: 999px;
+  font-size: .8rem; font-weight: 600; color: var(--muted); background: transparent; border: 1px solid var(--line); white-space: nowrap; }
+.glance-item b { color: var(--text-strong); font-weight: 750; }
+.glance-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tone, var(--muted)); flex: none; }
+.glance-item.blocked { --tone: var(--danger); }
+.glance-item.review { --tone: var(--waiting); }
+.glance-item.working { --tone: var(--working); }
+.glance-item.update { --tone: var(--idle); }
+.glance-item[aria-pressed="true"] { background: color-mix(in srgb, var(--tone) 16%, var(--surface)); border-color: var(--tone); color: var(--text-strong); box-shadow: none; }
+.glance-item:disabled { opacity: .45; }
+/* Phones (icon-only agent buttons): the tag sits on the button's top corner instead of widening it. */
+@media (max-width: 600px) {
+  #agentPills .agent-pill { position: relative; }
+  #agentPills .agent-pill .acct { position: absolute; top: -6px; right: -2px; margin: 0; padding: 0 4px; font-size: .62rem; line-height: 1.4; z-index: 2; }
+}
+
+/* ---------- Confirm sheets: the button says what it does, in its colour; buttons outside the amber box ---------- */
+.confirm-step { display: grid; gap: 12px; }
+.confirm-step > .error:empty { display: none; }
+button.primary.go { background: var(--go-bg); border-color: var(--go-line); color: #fff; }
+button.primary.danger { background: #b3362c; border-color: #d0493e; color: #fff; }
+/* The sheet itself takes focus when it has no text box: no ring around the whole body. */
+.sheet-body:focus { outline: none; }
+
+/* Readable placeholders (the browser default grey was 3.7:1). */
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+
+/* Phones: the filter dropdowns and search are full 44px touch targets. */
+@media (max-width: 600px) {
+  .filter-select select, .age-row .search input { min-height: 44px; }
+}
+.confirm .bubble { background: var(--surface); border: 1px solid var(--line); }
+
+/* ---------- Loading and empty states ---------- */
+/* While the first read is under way: placeholder cards with a soft shimmer (still under reduced motion). */
+.card.skeleton { min-height: 200px; gap: 12px; pointer-events: none; }
+.sk-line { height: 12px; border-radius: 6px; background: var(--surface-2); position: relative; overflow: hidden; }
+.sk-title { width: 55%; height: 16px; }
+.sk-short { width: 70%; }
+.sk-buttons { margin-top: auto; height: 40px; border-radius: 10px; background: var(--surface-2); }
+.sk-line::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--hover-tint), transparent); animation: sk-shimmer 1.4s ease-in-out infinite; }
+@keyframes sk-shimmer { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .sk-line::after { animation: none; } }
+/* Nothing needs you: a calm all-clear tile where Needs you would be. */
+.all-clear { display: flex; align-items: center; gap: 14px; margin: 4px 0 22px; padding: 14px 16px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--good) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--good) 35%, var(--line)); }
+.all-clear-mark { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-weight: 800;
+  color: #fff; background: var(--go-bg); }
+.all-clear-title { margin: 0; font-weight: 750; font-size: 1.02rem; color: var(--text-strong); }
+.all-clear-note { margin: 2px 0 0; color: var(--muted); font-size: .88rem; }
+/* The working line: "Working · 48m" never wraps; what you asked takes the rest of the line and ends in "…". */
+.working-line { max-width: 100%; overflow: hidden; }
+.working-line > span:not(.working-ask) { flex: none; white-space: nowrap; }
+.working-line .working-ask { flex: 1 1 auto; }
+
+/* ---------- The logo below desktop: as big as the bar's spare room allows (desktop: 40px / 31px, above) ---------- */
+@media (min-width: 601px) and (max-width: 1099px) {
+  .wordmark .mark-logo { width: 38px; height: 38px; }
+  .wordmark .wordmark-img { height: 29px; }
+}
+@media (min-width: 441px) and (max-width: 600px) {
+  .wordmark .mark-logo { width: 38px; height: 38px; }
+  .wordmark .wordmark-img { height: 30px; }
+}
+@media (max-width: 440px) {
+  .wordmark .mark-logo { width: 32px; height: 32px; }
+  .wordmark .wordmark-img { height: 22px; }
+}
+@media (max-width: 380px) { .wordmark .mark-logo { width: 34px; height: 34px; } }
+
+/* Running, on an agent button: a steady ring in the agent's colour that slowly breathes (opacity only, so the browser
+   never repaints it frame by frame); the turning ring stays on running cards. */
+.agent-pill.glow::before { animation: glow-breathe 2.6s ease-in-out infinite; background: color-mix(in srgb, var(--agent) 80%, transparent); }
+@keyframes glow-breathe { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .agent-pill.glow::before { animation: none; opacity: .8; } }
+
+/* Computers: the agent row sits clear of the top bar, so a running agent's halo (5px outside its button) is never cut
+   off under the bar; the bar gives back the room from its own bottom padding. */
+@media (min-width: 1100px) {
+  .topbar { padding-bottom: 2px; }
+  .top { padding-top: 8px; }
+  #agentPills { margin-top: 0; }
+}
+
+/* ---------- Computers (1100px+): search in the top bar; agents alone on their row; status at the end of the filters ----
+   Top bar: logo · search · light/dark · refresh · New chat · settings (app.js placeSearch moves the search box there).
+   Agents: equal buttons filling the row, wrapping onto a second row of the same size when there are many.
+   Filters: time window · layout · at a glance · Status. */
+@media (min-width: 1100px) {
+  .top-row .search { flex: 1 1 auto; max-width: 640px; min-width: 200px; margin: 0 16px 0 24px; order: 0; }
+  .top-row .search input { min-height: 40px; border-radius: 999px; padding: 6px 16px; }
+  .top-row .refresh-btn { margin-left: auto; }
+  .top-row .theme-btn + .refresh-btn { margin-left: 0; }
+  #agentPills { flex: 1 1 100%; order: 10; display: grid; grid-auto-flow: row; grid-auto-columns: auto;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; margin: 0 -4px; }
+  .top .status-select { order: 50; }
+  .glance { order: 48; }
+}

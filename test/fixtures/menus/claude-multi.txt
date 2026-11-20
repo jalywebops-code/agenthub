@@ -1,0 +1,50 @@
+
+ ▐▛███▛█   Claude Code v2.1.326
+▝▜██████▀  Opus 5.5 with high effort · Claude Max
+ ▝▝   ▝▝   ~/projects/example
+
+▎ [✻] [✻] [✻] · Share Claude Code and earn $10 in usage credits · /passes
+
+❯ AgentHub test (safe to delete). Do not use any tools except AskUserQuestion. Use your AskUserQuestion tool to ask me one single-choice question (which fruit to use) with three options that each
+  have a short description.
+
+⏺ Answered Claude's questions:
+  ⎿  · Which fruit should we use for this AgentHub test? → Apple
+
+⏺ I asked one single-choice question with three fruit options: Apple, Banana and Mango, each with a short description. You picked Apple, so the AgentHub test went through.
+  ⎿  Stop says: Still on Opus (claude-opus-5-5) - run /model sonnet if the next task does not need it.
+
+✻ Cooked for 4s · done 12:59 PM
+
+❯ Now use AskUserQuestion once more with ONE multi-select question (which colors, multiSelect true) with three options.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+←  ☐ Colors  ✔ Submit  →
+
+Which colors should we use for this AgentHub test?
+
+❯ 1. [ ] Red
+         Bold and warm, draws attention.
+  2. [ ] Green
+         Calm and natural, signals success.
+  3. [ ] Blue
+         Cool and steady, easy on the eyes.
+  4. [ ] Type something
+     Submit
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+Enter to select · ↑/↓ to navigate · Esc to cancel
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+# AgentHub board as a systemd user service: starts with your user session, restarts if it crashes.
+# Filled in and enabled by `npm run install-service`; removed by `npm run uninstall-service`.
+# On a server you don't log in to, run once:  loginctl enable-linger $USER  (so it runs without a login).
+[Unit]
+Description=AgentHub board
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=__ROOT__
+ExecStart=__NODE__ __ROOT__/server.js
+Environment=PATH=__PATH__
+Restart=always
+RestartSec=15
+StandardOutput=append:__ROOT__/logs/server.log
+StandardError=append:__ROOT__/logs/server.log
+
+[Install]
+WantedBy=default.target

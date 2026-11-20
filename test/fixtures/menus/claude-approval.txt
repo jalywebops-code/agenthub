@@ -1,0 +1,20 @@
+⏺ The run's own folder was removed when it stopped. One leftover: the old fixed agenthub-demo temp folder
+  from my earlier test runs is still there. It's harmless and macOS clears temp folders itself.
+
+  The demo is running again at http://localhost:4410.
+
+⏺ Bash(rm -r "$T/agenthub-demo" && echo deleted)
+  ⎿  Running…
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Bash command
+
+   T=$(node -e 'console.log(require("os").tmpdir())'); rm -r "$T/agenthub-demo" && echo deleted
+   Delete the old demo folder
+
+ Do you want to proceed?
+ ❯ 1. Yes
+   2. Yes, and don't ask again for rm commands in /Users/you/projects/example
+   3. No, and tell Claude what to do differently (esc)
+
+ Esc to cancel · Tab to amend · ctrl+e to explain

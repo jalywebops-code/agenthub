@@ -1,0 +1,50 @@
+
+ ▐▛███▛█   Claude Code v2.1.326
+▝▜██████▀  Opus 5.5 with high effort · Claude Max
+ ▝▝   ▝▝   ~/projects/example
+
+▎ [✻] [✻] [✻] · Share Claude Code and earn $10 in usage credits · /passes
+
+❯ AgentHub test (safe to delete). Do not use any tools except AskUserQuestion. Use your AskUserQuestion tool to ask me one single-choice question (which fruit to use) with three options that each
+  have a short description.
+
+⏺ Answered Claude's questions:
+  ⎿  · Which fruit should we use for this AgentHub test? → Apple
+
+⏺ I asked one single-choice question with three fruit options: Apple, Banana and Mango, each with a short description. You picked Apple, so the AgentHub test went through.
+  ⎿  Stop says: Still on Opus (claude-opus-5-5) - run /model sonnet if the next task does not need it.
+
+✻ Cooked for 4s · done 12:59 PM
+
+❯ Now use AskUserQuestion once more with ONE multi-select question (which colors, multiSelect true) with three options.
+
+⏺ Declined to answer Claude's questions:
+  ⎿  · Which colors should we use for this AgentHub test? (Red / Green / Blue)
+
+❯ Now use AskUserQuestion once with TWO separate single-choice questions in the same call (a size question and a shape question), two options each.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+←  ☐ Size  ☐ Shape  ✔ Submit  →
+
+Which size should we use for this AgentHub test?
+
+❯ 1. Small
+     Compact and light, takes up little space.
+  2. Large
+     Big and prominent, easy to spot.
+  3. Type something.
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  4. Chat about this
+
+Enter to select · Tab/Arrow keys to navigate · Esc to cancel
+
+
+
+
+
+
+
+
+
+
+
+

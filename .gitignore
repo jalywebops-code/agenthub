@@ -1,0 +1,17 @@
+node_modules/
+.data/
+logs/
+.env
+.env.*
+.DS_Store
+__pycache__/
+.playwright-mcp/
+
+# Your own notes, specs and plans (on the owner's Mac this is a link into their notes vault). Never public.
+/private
+
+# This install's starting setup (copied into .data/setup.json on first start). Personal; never committed.
+/setup.local.json
+
+# Agent worktrees (temporary working copies)
+.claude/worktrees/

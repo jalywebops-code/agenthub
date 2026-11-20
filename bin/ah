@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# ah — start Claude Code or Codex inside tmux so AgentHub can answer it from your phone.
+#
+#   ah claude [folder] [extra args...]   e.g.  ah claude ~/projects/example
+#   ah codex  [folder] [extra args...]   e.g.  ah codex .
+#   ah ls                                list running agent sessions
+#   ah attach <name>                     reattach to one (detach again with Ctrl-b then d)
+#
+# The session keeps running if you close the terminal window. Reattach with `ah attach`.
+# Works with the bash that ships with macOS (3.2) and on Linux.
+set -e
+
+TMUX_BIN=$(command -v tmux || echo /opt/homebrew/bin/tmux)
+
+usage() { sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+
+cmd=${1:-}
+case "$cmd" in
+  ls)
+    "$TMUX_BIN" list-sessions -F '#{session_name}  (#{session_windows} window, started #{t:session_created})' 2>/dev/null || echo "No tmux sessions running."
+    exit 0 ;;
+  attach)
+    [ -n "${2:-}" ] || usage
+    exec "$TMUX_BIN" attach-session -t "$2" ;;
+  claude|codex) ;;
+  *) usage ;;
+esac
+
+shift
+dir=${1:-$PWD}
+[ $# -gt 0 ] && shift
+[ -d "$dir" ] || { echo "ah: no such folder: $dir" >&2; exit 1; }
+dir=$(cd "$dir" && pwd -P)
+
+# tmux session names can't contain '.' or ':'
+base=$(basename "$dir" | tr '.:' '--')
+name="$cmd-$base"
+n=2
+while "$TMUX_BIN" has-session -t "=$name" 2>/dev/null; do name="$cmd-$base-$n"; n=$((n + 1)); done
+
+# Run the agent through your login shell so PATH (nvm, npm globals, ~/.local/bin) matches your terminal.
+inner=$(printf '%q' "$cmd")
+for a in "$@"; do inner+=" $(printf '%q' "$a")"; done
+shell=${SHELL:-/bin/bash}
+
+if [ -n "${TMUX:-}" ]; then
+  "$TMUX_BIN" new-window -n "$name" -c "$dir" "$shell -lc $(printf '%q' "$inner")"
+else
+  exec "$TMUX_BIN" new-session -s "$name" -c "$dir" "$shell -lc $(printf '%q' "$inner")"
+fi
