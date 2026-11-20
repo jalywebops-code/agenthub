@@ -40,6 +40,13 @@ the couch. Everything else stays quietly out of the way until it matters.
 It is a single folder of plain Node. No dependencies, no build step, no account, no cloud: it runs on your computer and
 your data never leaves it.
 
+### The story
+
+I was looking at [SlashVibe](https://kicktraq.com/projects/loda/slashvibe/) on Kickstarter: a neat little desk display
+and controller for keeping an eye on your AI agents. I liked the idea. Then I saw it ships in 2027 and costs a couple of
+hundred dollars, and thought: why wait a year and buy another gadget, when the screen I need is already in my pocket?
+So I built AgentHub: the same idea, on the phone and computer you already have. Free, open source, and working today.
+
 <p align="center">
   <img src="docs/images/board-tactile.png" alt="The AgentHub board in the tactile style, dark mode" width="880">
 </p>
