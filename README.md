@@ -81,6 +81,68 @@ So I built AgentHub: the same idea, on the phone and computer you already have. 
 - **Several Claude accounts** side by side, each marked with its own coloured tag.
 - **Phone first**: add it to your Home Screen and it opens full-screen like an app; pull down to refresh.
 
+<details>
+<summary><b>Every feature, in one list</b> (there are a lot of small ones)</summary>
+
+**The board**
+- Needs you (blocked and to review, grouped by agent) · Active (running, updates, recently quiet) · every project,
+  folded to one line with its counts
+- At-a-glance counts (blocked, to review, running, updates), each a one-tap filter
+- Filters by agent, status and time window (today, 7 days, 30 days, all), and search (press <kbd>/</kbd>)
+- 3, 4 or 6 cards per screen; cards fit their content and show the end of the latest reply
+- Projects from your folders, with groups (several folders as one project), folders to leave out, and Hermes kanban
+  boards mapped to projects; finished chats and quiet projects can fold away
+- Closed view: close a card you're done with and it comes back by itself when something new happens; reopen any time
+- The triage page (`/triage`, `/triage.txt`): a read-only plain-text summary of what needs you
+
+**Answering**
+- Approve permission prompts, with the question and the exact command on the card and the full terminal screen
+  before you confirm; Request changes instead
+- Multiple-choice questions as buttons, pick-several questions as tick boxes, a free-text row, and long lists of
+  decisions answered one at a time
+- Reply with text, voice dictation, up to four images, and the agent's own `/slash` commands (with a helper)
+- Suggest a reply: drafted by one of your Claude accounts, never sent without you
+- Review: open what the agent made (links get screenshot previews), then approve or ask for changes
+- Defer (the agent is told to hold off; the card moves to Closed) and Resume; End a chat
+- A chat you paused yourself is parked as Paused, not counted as waiting on you
+
+**Keeping work moving**
+- Continue a chat that stopped with a report, with a five-second Undo; Continue all at once
+- Continue at reset: a chat stopped by a usage limit continues two minutes after the limit resets (cancellable)
+- Plan-usage rings on each Claude account and Codex: session and weekly usage drain around the button, amber from 75%,
+  red from 90%; press and hold for the numbers and reset times
+- New chat with one agent or several at once, in a project folder, with a model of your choice
+- Ask any agent a read-only side question about a chat
+- Hand a task off to another agent, or have Hermes do one thing a chat asked you to do and send the result back
+
+**Agents and health**
+- A status light on every agent button (ready, degraded, down) and a health ring on the settings button that shows the
+  board's last read at a glance
+- Press and hold an agent for its details, to re-check it, to restart the Hermes or OpenClaw gateway, or to hide it on
+  this device
+- Several Claude Code accounts side by side, each with its own coloured tag; read-only folders of tool sessions shown
+  with their own label
+- Agent versions in Settings, with a note when an update is available (AgentHub never updates your agents)
+- A welcome that finds your agents and says exactly what each one needs next; Detect again any time
+
+**Your look**
+- Light, dark or match the device; classic or tactile style; per device
+- Account tags in colour; the tactile style has its own embossed logo
+
+**Phone and computer**
+- Home Screen app (full screen), pull down to refresh, 44px touch targets, works over Tailscale with HTTPS
+- The page updates itself when AgentHub is updated
+- Start with your computer (launchd on macOS, systemd on Linux) in one click; restart the board from Settings
+- `bin/ah` to start answerable Claude Code and Codex sessions from a terminal
+- A demo mode with made-up agents (`npm run demo`)
+
+**Safety**
+- A PIN for every device, action tokens, Origin checks, a rate limit, local-only listening
+- Confirmation before anything is sent, every action logged, menus never answered blindly, never types into a shell
+- Zero dependencies, no telemetry, and a privacy check for anything personal before you share the code
+
+</details>
+
 <table>
   <tr>
     <td width="50%"><img src="docs/images/approve.png" alt="Approving a request: the confirm sheet says exactly what will happen"></td>
