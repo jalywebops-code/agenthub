@@ -498,6 +498,7 @@ function glowPills() {
 // ---------- cards ----------
 function statusPill(c) {
   if (c.deferred) return h('span', { class: 'pill deferred', title: `Deferred ${ago(c.closedAt)}` }, 'Deferred');
+  if (c.paused) return h('span', { class: 'pill deferred', title: `Paused at your request ${ago(c.lastActivity)}` }, 'Paused');
   if (c.needsApproval) return h('span', { class: 'pill approval' }, `Approval ${short(c.waitingSince || c.lastActivity)}`);
   if (c.status === 'blocked') return h('span', { class: 'pill blocked' }, `Blocked ${short(c.waitingSince)}`);
   if (c.status === 'review') return h('span', { class: 'pill review' }, `Review ${short(c.waitingSince)}`);
@@ -863,14 +864,15 @@ function cardEl(c) {
   return h('article', { class: `card ${c.needsApproval ? 'approval' : c.status}${c.status === 'working' && !c.closedAt ? ' glow' : ''}`, 'data-id': c.id, 'data-agent': c.harness, 'data-kind': kindOf(c.harness), 'data-accent': laneOf(c.harness).accent || null, 'aria-label': `${c.title}, ${HARNESS[c.harness]}, ${c.needsApproval ? 'needs approval' : STATUS_LABEL[c.status]}` },
     h('header', { class: 'card-head' },
       agentIcon(c.harness),
+      // Which Claude account (its tag, e.g. JWS): right by the agent's icon, where it can't be missed.
+      acctBadge(c.harness),
       h('div', { class: 'head-text' },
         // The folder rides on the title line (saves a row on phones).
         h('h3', { class: 'title', title: c.title }, h('span', { class: 'title-text' }, c.title))),
       // Right column: status on top, folder under it (no separate folder row under the title).
       h('div', { class: 'head-right' }, statusPill(c),
         h('span', { class: 'where', title: c.cwd || where },
-          laneOf(c.harness).tag ? h('span', { class: 'acct', 'aria-hidden': 'true' }, laneOf(c.harness).tag) : null,
-          where, h('span', { class: 'sr-only' }, ` · ${HARNESS[c.harness]}`))),
+          where, h('span', { class: 'sr-only' }, ` · ${laneOf(c.harness).name || HARNESS[c.harness]}`))),
       c.deferred ? null : c.closedAt
         ? h('button', { type: 'button', class: 'x', 'aria-label': `Reopen ${c.title} on the board`, title: 'Reopen on the board', onclick: () => reopen(c) }, '↺')
         : h('button', { type: 'button', class: 'x', 'aria-label': `Close or end ${c.title}`, title: 'Close or end this chat', onclick: () => openClose(c) }, '×')),

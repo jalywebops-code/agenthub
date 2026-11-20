@@ -48,3 +48,22 @@ test('triage lists approvals, other blocked, to review and running', async () =>
   assert.match(t, /TO REVIEW \(1\)/);
   assert.match(t, /RUNNING \(1\)/);
 });
+
+test('a chat you paused is parked (idle, Paused), even when its reply lists what is left as numbered items', () => {
+  const card = (prompt, reply, extra = {}) => ({ status: 'waiting', lastPrompt: prompt, lastReply: reply,
+    question: { kind: 'reply', options: ['a', 'b', 'c'] }, ...extra });
+  const parked = card("Let's pause here for now, I'll come back to it tomorrow.",
+    'Pausing. When you pick this back up, the open items are:\n1. The steps\n2. The phone number\n3. Email leads');
+  splitWaiting([parked]);
+  assert.equal(parked.status, 'idle');
+  assert.equal(parked.paused, true);
+  assert.equal(parked.question, null);
+  // Only one side mentions a pause: not parked.
+  const feature = card('Add a pause button to the player.', 'Which style?\n1. Icon\n2. Text\n3. Both');
+  splitWaiting([feature]);
+  assert.equal(feature.status, 'blocked');
+  // An approval still needs you, whatever was said.
+  const approval = card('Pause after this deploy.', "I'll wait for your approval to deploy.", { needsApproval: true });
+  splitWaiting([approval]);
+  assert.equal(approval.status, 'blocked');
+});

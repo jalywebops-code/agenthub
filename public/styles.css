@@ -1075,3 +1075,5 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
   .top .status-select { order: 50; }
   .glance { order: 48; }
 }
+/* A card's account tag sits by its agent icon, on the title line. */
+.card-head > .acct { align-self: flex-start; margin: 3px 0 0; font-size: .72rem; }
